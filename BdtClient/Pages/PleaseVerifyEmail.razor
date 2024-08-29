@@ -1,0 +1,79 @@
+﻿@page "/pleaseverifyemail/{Username}/{Email}/{Password}"
+
+@using BdtClient.AppServices.App;
+@using BdtShared.Dtos.Users;
+
+@inject IAppService _appService
+@inject NavigationManager _navigation
+
+<MudContainer Style="height:80vh;width:100%" Class="mt-5">
+    <MudImage Src="images/busy_dad_black_logo_medium.png" Alt="Busy Dad Training" Style="width:100%" Class="mt-5 mb-5" />
+
+    <MudText Typo="Typo.body1"><b>VERIFY YOUR EMAIL</b></MudText>
+    <br />
+    <MudText Class="mt-3 mb-3" Typo="Typo.caption">
+        An email has been sent to <b>@Email</b>. <br />
+        Please confirm your email address by clicking on the link in the email.<br /><br />
+        After you have confirmed your email, head to the login page to continue setting up your account.
+    </MudText>
+    <br /><br />
+    <MudStack Justify="Justify.Center" Style="align-items: center;" Class="mt-2">
+        <MudItem Style="width:75%;">
+            <MudButton IconSize="MudBlazor.Size.Large" EndIcon="@Icons.Material.Outlined.ArrowForwardIos" Class="mt-5"
+                       Style="width:100%;border-radius:50px;background-image:linear-gradient(to left, rgba(33,150,243,1), rgba(240,240,240,1))" OnClick="GoToLogin">
+                <MudContainer>
+                    <MudText Align=MudBlazor.Align.Center Typo="Typo.body1"><b>Go To Login</b></MudText>
+                </MudContainer>
+            </MudButton>
+        </MudItem>
+        <MudItem Class="mt-5">
+            <MudLink OnClick="ResendEmail">
+                @if (ShowSpinner)
+                {
+                    <MudProgressCircular Size=MudBlazor.Size.Small Color="MudBlazor.Color.Info" Indeterminate="true" />
+                }
+                else
+                {
+                    @("Resend email")
+                }
+            </MudLink>
+        </MudItem>
+    </MudStack>
+    
+</MudContainer>
+
+@code {
+    [Parameter] public string Username { get; set; }
+    [Parameter] public string Email { get; set; }
+    [Parameter] public string Password { get; set; }
+
+    private bool ShowSpinner = false;
+
+    private async Task ResendEmail()
+    {
+        ShowSpinner = true;
+        var registerUserDto = new RegisterUserDto
+            {
+                UserName = Username,
+                Email = Email,
+                Password = Password
+            };
+
+        var resp = await _appService.ResendVerificationEmail(registerUserDto);
+
+        ShowSpinner = false;
+        if (resp.IsSuccess)
+        {
+            //await App.Current.MainPage.DisplayAlert("Email Sent", "Verification email has been sent, please confirm email by clicking the link in the email.", "Ok");
+        }
+        else
+        {
+            //await App.Current.MainPage.DisplayAlert("Failed to send email", "There was a problem sending the email. If you continue to have issues, please contact us.", "Ok");
+        }
+    }
+
+    private void GoToLogin()
+    {
+        _navigation.NavigateTo("/login");
+    }
+}

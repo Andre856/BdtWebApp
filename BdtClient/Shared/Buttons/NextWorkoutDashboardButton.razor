@@ -1,0 +1,76 @@
+﻿@using BdtClient.AppServices.Claims
+@using BdtClient.AppServices.Theme;
+@using BdtClient.Shared.Dialogs;
+@using BdtClient.Themes
+@using BdtShared.Dtos.Planner;
+
+@inject IDialogService _dialogService
+@inject IClaimService _claimService
+@inject BdtThemeService _themeService
+
+<MudButton Style="@buttonStyleString"
+           FullWidth="true" IconSize="MudBlazor.Size.Large" 
+           EndIcon="@Icons.Material.Outlined.ArrowForwardIos" 
+           Variant="MudBlazor.Variant.Filled" OnClick="() => NextWorkoutClicked(NextWorkout)">
+
+    <MudContainer>
+        <MudText Align=MudBlazor.Align.Center Typo="Typo.body1"><b>YOUR NEXT WORKOUT</b></MudText>
+        
+        @if (NextWorkout.WeekDayId == (int)DateTime.Now.DayOfWeek)
+        {
+            <MudText Align=MudBlazor.Align.Center Typo="Typo.body2">Today</MudText>
+        }
+        else if (NextWorkout.WeekDayId == ((int)DateTime.Now.DayOfWeek + 1) % 7)
+        {
+            <MudText Align=MudBlazor.Align.Center Typo="Typo.body2">Tomorrow</MudText>
+        }
+        else
+        {
+            <MudText Align=MudBlazor.Align.Center Typo="Typo.body2">@NextWorkout.WeekDay.Name</MudText>
+        }
+        
+    </MudContainer>
+</MudButton>
+
+@code {
+    [Parameter] public PlannerDto NextWorkout { get; set; }
+
+    private string buttonStyleString;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _themeService.OnThemeChanged += OnThemeChanged;
+        await SetButtonStyle();
+    }
+
+    private async void OnThemeChanged()
+    {
+        await SetButtonStyle();
+        StateHasChanged();
+    }
+
+    private async Task SetButtonStyle()
+    {
+        var isDark = await _claimService.IsDarkTheme();
+        var colorTone = new ColorTone(isDark);
+        var leftColor = colorTone.Info;
+        var rightColor = colorTone.Background;
+
+        buttonStyleString = $"border-radius:50px;background-image:linear-gradient(to left, {leftColor}, {rightColor})";
+
+        StateHasChanged();
+    }
+
+    private async Task NextWorkoutClicked(PlannerDto plannerDto)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("WorkoutDuration", plannerDto.WorkoutDuration);
+        parameters.Add("IsFromPlanner", false);
+        var dialogResponse = await _dialogService.ShowAsync<NextWorkoutDashboardDialog>("Next Workout", parameters);
+    }
+
+    public void Dispose()
+    {
+        _themeService.OnThemeChanged -= OnThemeChanged;
+    }
+}

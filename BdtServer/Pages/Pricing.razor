@@ -1,0 +1,92 @@
+﻿@page "/pricing"
+
+@using BdtServer.AppServices.App;
+@using BdtServer.AppServices.BdtProduct;
+@using BdtServer.AppServices.Checkout;
+@using BdtShared.Dtos.BdtProduct;
+
+@inject IAppService _appService
+@inject ICheckoutService _checkoutService
+@inject IBdtProductService _bdtProductService
+@inject IJSRuntime _jsRuntime
+@inject NavigationManager _navigation
+
+@if (Products is not null)
+{
+    <MudContainer Class="mt-10">
+        <MudText Typo="Typo.h3" Align="MudBlazor.Align.Center" GutterBottom="true">Pricing</MudText>
+        <MudText Align="MudBlazor.Align.Center">Select one of our pricing plans below.</MudText>
+        <MudGrid Class="mt-8">
+            @foreach (var product in Products)
+            {
+                <MudItem xs="12" sm="6" md="4">
+                    <MudCard Elevation="25" Class="rounded-lg pb-4">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h5" Align="MudBlazor.Align.Center">@product.Title</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <div class="d-flex justify-center">
+                                <MudText Typo="Typo.h3">$@Math.Round(product.Price/100.0, 2)</MudText>
+                            </div>
+                            <MudList T="string" Class="mx-auto mt-4" Style="width:300px;">
+                                <MudListItem Icon="@Icons.Material.Filled.LiveHelp">
+                                    <MudText Typo="Typo.h5" Color="MudBlazor.Color.Secondary">$@Math.Round(product.PricePerMonth/100.0, 2) Monthly</MudText>
+                                </MudListItem>
+                                <MudListItem Icon="@Icons.Material.Filled.LiveHelp">
+                                    @product.Description
+                                </MudListItem>
+                                <MudListItem Icon="@Icons.Material.Filled.LiveHelp">
+                                    somwthing else here????
+                                </MudListItem>
+                            </MudList>
+                        </MudCardContent>
+                        <MudCardActions Class="d-flex justify-center">
+                            <MudButton Variant="MudBlazor.Variant.Filled" Color="MudBlazor.Color.Primary" Size="MudBlazor.Size.Large" Style="width:50%;" OnClick="@(() => OnClickBtnBuyNowAsync(product))">Start Now</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    </MudContainer>
+}
+else
+{
+    <PageLoading />
+}
+
+
+@code {
+    private IEnumerable<BdtProductDto>? Products;
+    private IEnumerable<BdtProductDto[]>? ProductChunksOf4;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await _bdtProductService.GetAllProducts();
+        if (!response.IsSuccess)
+        {
+            //await App.Current.MainPage.DisplayAlert("Oops", $"There was an issue trying to load the this page, please try again.", "OK");
+            return;
+        }
+
+        Products = response.Data;
+
+        if (Products is not null)
+        {
+            ProductChunksOf4 = Products.Chunk(4);
+        }
+    }
+
+    private void OnClickBtnBuyNowAsync(BdtProductDto bdtProductDto)
+    {
+        if (Globals.Environment == BdtShared.Enums.EnvironmentEnums.Devevelopment)
+        {
+            _navigation.NavigateTo($"/payment/{bdtProductDto.StripeTestApiId}");
+        }
+        else
+        {
+            _navigation.NavigateTo($"/payment/{bdtProductDto.StripeProdApiId}");
+        }
+    }
+}

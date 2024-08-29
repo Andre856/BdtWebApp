@@ -1,0 +1,125 @@
+﻿@page "/usersettings"
+
+@using BdtClient.AppServices.App
+@using BdtClient.AppServices.Stripe
+@using BdtClient.Shared.Dialogs
+@using BdtShared.Dtos.Stripe
+
+@inject IStripeService _stripeService
+@inject IAppService _appService
+@inject IDialogService _dialogService
+@inject NavigationManager _navigation
+
+@if (Loading)
+{
+    <PageLoading />
+}
+else
+{
+    <MudCard Style="height:90vh">
+        <MudStack Class="ml-5 mr-5">
+            <MudText Class="mt-5 mb-5" Typo="Typo.body1" Align="MudBlazor.Align.Center">ACCOUNT SETTINGS</MudText>
+            <MudTextField Disabled="true" T="string" Label="Subscription Start Date" Class="mb-3" Variant="MudBlazor.Variant.Filled" Text="@Subscription.CurrentPeriodStart.ToString()" />
+            <MudTextField Disabled="true" T="string" Label="Next Biling Date" Class="mb-3" Variant="MudBlazor.Variant.Filled" Text="@Subscription.CurrentPeriodEnd.ToString()" />
+            <MudText Align="MudBlazor.Align.Left">Your subscription is currently <b>@(Subscription.IsActive ? "active." : "deactivated.")</b></MudText>
+            <MudText Align="MudBlazor.Align.Left">Your subscription <b>@(Subscription.CancellationRequested ? "will not." : "will")</b> be renewed.</MudText>
+
+            @if (Subscription is not null && !Subscription.CancellationRequested)
+            {
+                <MudButton Variant="MudBlazor.Variant.Outlined" Color="MudBlazor.Color.Error" OnClick="CancelUserSubscription">Cancel Subscription</MudButton>
+            }
+
+            <MudText Class="mt-5" Align="MudBlazor.Align.Left"><b>Delete Account</b></MudText>
+            <MudButton Variant="MudBlazor.Variant.Filled" Color="MudBlazor.Color.Error" OnClick="DeleteUserAccount">Delete Account</MudButton>
+        </MudStack>
+    </MudCard>
+}
+
+@code {
+    private bool Loading = true;
+    private SubscriptionsDto Subscription;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetUserSubscription();
+    }
+
+    private async Task GetUserSubscription()
+    {
+        var response = await _stripeService.GetUserSubscription();
+        if (!response.IsSuccess)
+        {
+            //await App.Current.MainPage.DisplayAlert("Oops", $"There was an issue trying to get your data, please try again.", "OK");
+            _navigation.NavigateTo("/dashboard");
+        }
+
+        Subscription = response.Data;
+        Loading = false;
+    }
+
+    private async Task CancelUserSubscription()
+    {
+        var cancelSubscriptionDialog = await _dialogService.ShowAsync<CancelSubscriptionDialog>("Cancel Subscription");
+        var cancelSubscription = await cancelSubscriptionDialog.GetReturnValueAsync<bool>();
+
+        if (cancelSubscription)
+        {
+            await CancelSubscription();
+        }
+    }
+
+    private async Task DeleteUserAccount()
+    {
+        if (Subscription.IsActive)
+        {
+            if (!await CancelSubscription(true))
+            {
+                return;
+            }
+        }
+
+        var deleteUserAccountDialog = await _dialogService.ShowAsync<DeleteUserAccountDialog>("Delete Account");
+        var deleteUserAccount = await deleteUserAccountDialog.GetReturnValueAsync<bool>();
+
+        if (deleteUserAccount)
+        {
+            await DeleteAccount();
+        }
+    }
+
+    private async Task<bool> CancelSubscription(bool isAccountDelete = false)
+    {
+        var response = await _stripeService.CancelUserSubscription();
+        if (response.Success)
+        {
+            if (!isAccountDelete)
+            {
+                //await App.Current.MainPage.DisplayAlert("Success", $"Your subscription has been cancelled. You can continue to use the app until {Subscription.CurrentPeriodEnd}", "OK");
+            }
+
+            await GetUserSubscription();
+
+            return true;
+        }
+        else
+        {
+            //await App.Current.MainPage.DisplayAlert("Oops", "Your subscription could not be cancelled, please try again or contact BusyDadTraining for support.", "OK");
+            return false;
+        }
+    }
+
+    private async Task DeleteAccount()
+    {
+        var accountDeleted = await _appService.DeleteUserAccount();
+
+        if (accountDeleted.IsSuccess)
+        {
+            //Your account has been deleted
+            _navigation.NavigateTo("/login");
+        }
+        else
+        {
+            //await App.Current.MainPage.DisplayAlert("Oops", "Failed to delete your account, please try again or contact BusyDadTraining for support.", "OK");
+        }
+    }
+}

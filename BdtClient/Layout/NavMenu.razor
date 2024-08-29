@@ -1,0 +1,78 @@
+﻿@using BdtClient.AppServices.Claims
+@using BdtClient.Handller
+@using BdtClient.Provider.Token
+@using BdtShared.Models.App;
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject IClaimService _claimService
+@inject CustomAuthStateProvider _authStateProvider
+@inject NavigationManager _navigation
+
+<MudNavMenu>
+    <MudNavLink Class="mt-4" Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.BarChart">Dashboard</MudNavLink>
+    <MudNavLink Class="mt-4" Href="/intervaltimer" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AvTimer">Timer</MudNavLink>
+    <MudNavLink Class="mt-4" Href="/planner" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EditCalendar">Planner</MudNavLink>
+    <MudNavLink Class="mt-4" Href="/addworkout/0" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AddCircle">Log Workout Results</MudNavLink>
+    <MudNavLink Class="mt-4" Href="/history" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.TableView">History</MudNavLink>
+    <MudNavLink Class="mt-4" Href="/programlevels" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Info">Program Levels</MudNavLink>
+    <MudNavLink Class="mt-4" Href="/tutorials" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Sports">Tutorials</MudNavLink>
+    <MudNavGroup Class="mt-4" Title="Settings" Expanded="false" Icon="@Icons.Material.Filled.Settings">
+        <MudNavLink Class="mt-4" Href="usersettings" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person">
+            @if (isLoggedIn)
+            {
+                @username
+            }
+            else
+            {
+                <span>User Settings</span>
+            }
+
+        </MudNavLink>
+        <MudNavLink Class="mt-4" Href="/notificationsettings" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notifications">Notifications</MudNavLink>
+    </MudNavGroup>
+    <MudNavLink Class="mt-4" Match="NavLinkMatch.Prefix" OnClick="@((e) => Logout())" Icon="@Icons.Material.Filled.Logout">Log out</MudNavLink>
+</MudNavMenu>
+
+@code {
+    private bool isLoggedIn = false;
+    private string username = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateAuthenticationState();
+
+        _authStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+    }
+
+    private async Task UpdateAuthenticationState()
+    {
+        var authState = await _authStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        isLoggedIn = user.Identity.IsAuthenticated;
+
+        if (isLoggedIn)
+        {
+            username = await _claimService.GetUsername();
+        }
+
+        StateHasChanged();
+    }
+
+    private async void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        await UpdateAuthenticationState();
+    }
+
+    private async Task Logout()
+    {
+        await _authStateProvider.MarkUserAsLoggedOutAsync();
+
+        _navigation.NavigateTo("/login");
+    }
+
+    public void Dispose()
+    {
+        _authStateProvider.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+    }
+}

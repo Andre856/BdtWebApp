@@ -1,0 +1,173 @@
+﻿@using BdtServer.Helpers
+@using BdtShared.Models.Charts;
+@using BdtServer.AppServices.Theme
+@using BdtShared.Models.Workout;
+
+@inject BdtServer.AppServices.Theme.ThemeService _themeService
+@implements IDisposable
+
+<style>
+    .rz-tick {
+        font-size: 0.5rem;
+    }
+
+    div.rz-chart.rz-scheme-pastel svg {
+        height: 100% !important;
+    }
+
+    .rz-legend-item-text {
+        font-size: 0.5rem !important;
+    }
+</style>
+
+<MudPaper Style="border-radius:20px;" Class="mb-5 mud-elevation-2" Outlined="true">
+    <MudContainer Class="mt-5 px-1 chart" MaxWidth="MaxWidth.ExtraExtraLarge">
+        <MudContainer Style="height: 230px" Class="mt-0 px-0" MaxWidth="MaxWidth.ExtraExtraLarge">
+            <MudText Typo="Typo.body2" Align="MudBlazor.Align.Center">@Title</MudText>
+            <MudText Style="font-size:10px" Typo="Typo.body2" Align="MudBlazor.Align.Center">Personal Best: @PersonalBest</MudText>
+            <RadzenChart Style="height: 185px; margin: 0 auto;">
+                <RadzenColumnSeries StrokeWidth="1" Visible="@ShowData" Data="@ChartData" CategoryProperty="xAxis" Title="Total" ValueProperty="yAxis" RenderingOrder="1" Stroke="@_themeService.CurrentColorTone.PrimaryDarken">
+                    <RadzenSeriesDataLabels Visible="@ShowDataLabels" />
+                </RadzenColumnSeries>
+                <RadzenLineSeries StrokeWidth="1.5" Visible="@ShowData" Smooth="@Smooth" Data="@MovingAve" CategoryProperty="xAxis" Title="Moving Ave" ValueProperty="yAxis" Stroke="@_themeService.CurrentColorTone.SuccessLighten" LineType="LineType.Solid">
+                    <RadzenSeriesDataLabels Visible="@ShowDataLabels" />
+                </RadzenLineSeries>
+                <RadzenCategoryAxis Min="null" Padding="10" Formatter="@FormatXAxisDates">
+                    @* <RadzenTicks>
+                        <Template>
+                            <text class="rz-tick-text" style="text-anchor: start; transform: translate(@(context.X - 15)px, @(context.Y + 32)px) rotate(-45deg)">@FormatXAxisDates(context.Value)</text>
+                        </Template>
+                    </RadzenTicks> *@
+                </RadzenCategoryAxis>
+                @{
+                    var max = ChartData.Select(x => x.yAxis).Max() + 2;
+                    var min = ChartData.Select(x => x.yAxis).Min() - 2;
+                    min = min < 0 ? 0 : min;
+                }
+                <RadzenValueAxis Min="min" Max="max" Formatter="@ConvertToString">
+                    <RadzenGridLines StrokeWidth="0.25" Visible="true" />
+                </RadzenValueAxis>
+                <RadzenLegend Visible="true" Position="Radzen.Blazor.LegendPosition.Bottom" />
+            </RadzenChart>
+        </MudContainer>
+    </MudContainer>
+</MudPaper>
+
+@code {
+    [Parameter] public string Title { get; set; }
+    [Parameter] public DateDataItem[] Data { get; set; }
+    [Parameter] public string SeriesName { get; set; }
+    [Parameter] public bool VisibleGridlines { get; set; }
+    [Parameter] public string ViewBy { get; set; }
+    [Parameter] public int PersonalBest { get; set; }
+
+    private bool Smooth = true;
+    private bool ShowDataLabels = false;
+    private bool ShowData = true;
+
+    private DateDataItem[] ChartData;
+    private DateDataItem[] MovingAve;
+
+    protected override void OnParametersSet()
+    {
+        CalculateChartsBasedOnViewByValue();
+    }
+
+    protected override void OnInitialized()
+    {
+        _themeService.ThemeChanged += StateHasChanged;
+
+        CalculateChartsBasedOnViewByValue();
+    }
+
+    private void CalculateChartsBasedOnViewByValue()
+    {
+        var now = DateTime.Now;
+
+        if (ViewBy.Equals("Week"))
+        {
+            var xMonthAgo = now.AddMonths(-4);
+            var xMonthData = Data.Where(x => x.xAxis >= xMonthAgo).OrderBy(x => x.xAxis);
+
+            var newData = FillInDates(xMonthData, xMonthAgo, now);
+            var weeklySummary = SummarizeWeeks(newData);
+
+            ChartData = weeklySummary;
+            MovingAve = Calculations.CalculateMovingAverage(weeklySummary, 2);
+        }
+        else
+        {
+            var oneMonthAgo = now.AddMonths(-1);
+            var oneMonthData = Data.Where(x => x.xAxis >= oneMonthAgo).OrderBy(x => x.xAxis);
+
+            var newData = FillInDates(oneMonthData, oneMonthAgo, now);
+
+            ChartData = newData;
+            MovingAve = Calculations.CalculateMovingAverage(newData, 3);
+        }
+    }
+
+    private DateDataItem[] FillInDates(IEnumerable<DateDataItem> data, DateTime from, DateTime until)
+    {
+        var workoutDates = data.Select(x => x.xAxis);
+
+        var dayCount = (int)(until - from).TotalDays;
+        var newData = new DateDataItem[dayCount];
+        for (int i = 0; i < dayCount; i++)
+        {
+            var newDate = from.AddDays(i).Date;
+            if (workoutDates.Contains(newDate))
+                newData[i] = new DateDataItem { xAxis = newDate, yAxis = data.First(x => x.xAxis == newDate).yAxis };
+            else
+                newData[i] = new DateDataItem { xAxis = newDate, yAxis = 0 };
+        }
+
+        return newData;
+    }
+
+    private static DateDataItem[] SummarizeWeeks(IEnumerable<DateDataItem> data)
+    {
+        var weeklySummaries = data
+            .GroupBy(workout => GetStartOfWeek(workout.xAxis))
+            .Select(group => new DateDataItem
+                {
+                    xAxis = group.Key,
+                    yAxis = group.Sum(x => x.yAxis)
+                })
+            .ToArray();
+
+        return weeklySummaries;
+    }
+
+    private static DateTime GetStartOfWeek(DateTime date)
+    {
+        int diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
+        return date.AddDays(-diff).Date;
+    }
+
+    public void Dispose()
+    {
+        _themeService.ThemeChanged -= StateHasChanged;
+    }
+
+    private void ToggleData()
+    {
+        ShowData = !ShowData;
+    }
+
+    string ConvertToString(object value)
+    {
+        return value.ToString();
+    }
+
+    string FormatXAxisDates(object value)
+    {
+        if (value != null)
+        {
+            var x = Convert.ToDateTime(value).ToString("dd-MMM");
+            return x;
+        }
+
+        return string.Empty;
+    }
+}

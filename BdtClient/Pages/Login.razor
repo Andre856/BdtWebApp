@@ -1,0 +1,140 @@
+﻿@page "/login"
+
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using System.IdentityModel.Tokens.Jwt;
+@using System.Security.Claims;
+@using BdtClient.AppServices.Claims
+@using BdtClient.Handller
+@using BdtShared.Models.App;
+@using BdtClient.AppServices.Theme;
+@using BdtClient.Shared.Dialogs;
+@using BdtClient.AppServices.App
+@using BdtShared.Dtos.Users;
+
+@inject IAppService _appService
+@inject IDialogService _dialogService
+@inject IClaimService _claimService
+@inject NavigationManager _navigation
+@inject BdtClient.AppServices.Theme.BdtThemeService _themeService
+@inject CustomAuthStateProvider _authStateProvider
+
+<MudContainer Style="height:80vh;width:100%" Class="mt-2">
+    
+    <MudItem xs="12" sm="7">
+        <MudContainer Class="pa-4">
+            @if (isDark)
+            {
+                <MudImage Src="images/busy_dad_white_logo_medium.png" Alt="Busy Dad Training" Style="width:100%" Class="mt-5 mb-5" />
+            }
+            else
+            {
+                <MudImage Src="images/busy_dad_black_logo_medium.png" Alt="Busy Dad Training" Style="width:100%" Class="mt-5 mb-5" />
+            }
+            <MudForm @ref="Form" @bind-IsValid="@Success" @bind-Errors="@Errors">
+                <MudTextField T="string" Label="Email" Required="true" RequiredError="Email is required!" @bind-Value="Email"
+                              Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" />
+                <MudTextField T="string" Label="Password" @bind-Value="Password"
+                              InputType="InputType.Password"
+                              RequiredError="Password is required!" />
+                <MudLink OnClick="ForgotPasswordClicked"><MudText Typo="Typo.caption">Forgot password</MudText></MudLink>
+                <div class="d-flex align-center justify-space-between">
+                    <MudButton Variant="MudBlazor.Variant.Filled" Color="MudBlazor.Color.Primary" Disabled="@(!Success)" Class="ml-auto" OnClick="@Submit">
+                        @if (ShowSpinner)
+                        {
+                            <MudProgressCircular Size=MudBlazor.Size.Small Color="MudBlazor.Color.Info" Indeterminate="true" />
+                        }
+                        else
+                        {
+                            <MudText>Login</MudText>
+                        }
+                    </MudButton>
+                </div>
+            </MudForm>
+        </MudContainer>
+        <MudContainer Class="pa-4">
+            <MudLink Href="/register"><MudText Typo="Typo.caption">Don't have an account yet? Sign up here!</MudText></MudLink>
+        </MudContainer>
+    </MudItem>
+</MudContainer>
+
+@code {
+    private bool Success;
+    private string[] Errors = { };
+    private string Password;
+    private string Email;
+    private MudForm Form;
+
+    private bool ShowSpinner = false;
+    private bool isDark = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isDark = await _claimService.IsDarkTheme();
+    }
+
+    private async Task ForgotPasswordClicked()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Email", Email);
+        var dialogResponse = await _dialogService.ShowAsync<ResetPasswordDialog>("Next Workout", parameters);
+
+        var email = await dialogResponse.GetReturnValueAsync<string>();
+
+        _navigation.NavigateTo($"/forgotpassword/{email}");
+    }
+
+    private async Task Submit()
+    {
+        ShowSpinner = true;
+
+        var authenticateUserDto = new AuthenticateUserDto
+            {
+                Email = Email,
+                Password = Password
+            };
+
+        var response = await _appService.AuthenticateUser(authenticateUserDto);
+
+        if (!response.IsSuccess)
+        {
+            ShowSpinner = false;
+
+            if (response.ErrorMessage.Equals("Email not authorized."))
+                _navigation.NavigateTo($"/pleaseverifyemail/{authenticateUserDto.Email}/{authenticateUserDto.Email}/{authenticateUserDto.Password}");
+            else
+            {
+                // Show error message or dialog
+            }
+        }
+        else
+        {
+            await _authStateProvider.MarkUserAsAuthenticated(response.Data);
+            var authState = await _authStateProvider.GetAuthenticationStateAsync();
+
+            if (authState.User.Identity.IsAuthenticated)
+            {
+                ShowSpinner = false;
+
+                var isFirstLogin = await _claimService.IsFirstLogin();
+
+                // if (_themeService.IsDarkTheme != isDarkMode)
+                //     await _themeService.ChangeColorTone(isDarkMode);
+
+                if (isFirstLogin)
+                {
+                    _navigation.NavigateTo("/getstarted");
+                }
+                else
+                {
+                    _navigation.NavigateTo("/dashboard");
+                }
+            }
+            else
+            {
+                //Notify that there was an error
+                _navigation.NavigateTo("/login");
+            }
+        }
+    }
+}

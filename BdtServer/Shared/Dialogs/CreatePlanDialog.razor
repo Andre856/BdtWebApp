@@ -1,0 +1,91 @@
+﻿
+@using BdtServer.Shared.Dialogs;
+@using BdtShared.Dtos.WorkoutType;
+@using BdtShared.Models.Dialogs
+
+<MudDialog>
+    <DialogContent>
+        <MudSelect Required=true Margin="Margin.Dense" T="string" Label="Workout" Variant="MudBlazor.Variant.Text" @bind-Value="@SelectedWorkoutType">
+            @foreach (var workoutType in WorkoutTypes)
+            {
+                <MudSelectItem Value="@workoutType.Name" />
+            }
+        </MudSelect>
+
+        @if (WorkoutTypeNotSelected)
+        {
+            <MudText Typo="Typo.caption" Color="MudBlazor.Color.Warning">
+                You need to select a workout type.
+            </MudText>
+        }
+
+        <MudNumericField @onfocus="@(() => WorkoutDurationField.SelectAsync())" T="int" Required=true Label="Duration (minutes)" Variant="MudBlazor.Variant.Text" Min="0" Max="80" @bind-Value="@WorkoutDuration" @ref="WorkoutDurationField" />
+        
+        @if (IsOverAllowedTime)
+        {
+            <MudText Typo="Typo.caption" Color="MudBlazor.Color.Warning">
+                You have gone over your allowed time limit. You can only schedule @AllowedTime minutes
+            </MudText>
+        }
+
+        @if (WorkoutDurationNotProvided)
+        {
+            <MudText Typo="Typo.caption" Color="MudBlazor.Color.Warning">
+                You need to specify how long your workout will be. You have @AllowedTime minutes left to schedule.
+            </MudText>
+        }
+
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="No">No</MudButton>
+        <MudButton Color="MudBlazor.Color.Primary" OnClick="Yes">Yes</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public List<WorkoutTypeDto> WorkoutTypes { get; set; }
+    [Parameter] public int TimeScheduled { get; set; }
+
+    private bool WorkoutTypeNotSelected = false;
+    private bool WorkoutDurationNotProvided = false;
+    private bool IsOverAllowedTime = false;
+
+    private string SelectedWorkoutType = null;
+    private int WorkoutDuration = 0;
+    private int AllowedTime;
+
+    private MudNumericField<int> WorkoutDurationField;
+
+    private void Yes()
+    {
+        WorkoutTypeNotSelected = SelectedWorkoutType is null;
+        WorkoutDurationNotProvided = WorkoutDuration == 0;
+        IsOverAllowedTime = WorkoutDuration > AllowedTime;
+
+        if (WorkoutTypeNotSelected || WorkoutDurationNotProvided || IsOverAllowedTime)
+        {
+            return;
+        }
+        
+        var createPlanDialog = new CreatePlanDialogModel
+        {
+            WorkoutType = SelectedWorkoutType,
+            WorkoutDuration = WorkoutDuration
+        };
+
+        MudDialog.Close(DialogResult.Ok(createPlanDialog));
+    }
+
+    private void No()
+    {
+        MudDialog.Close(DialogResult.Cancel());
+    }
+
+    protected override void OnInitialized()
+    {
+        AllowedTime = 80 - TimeScheduled;
+    }
+}

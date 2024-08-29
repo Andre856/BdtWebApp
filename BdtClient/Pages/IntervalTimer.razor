@@ -1,0 +1,409 @@
+﻿@page "/intervaltimer"
+@page "/intervaltimer/{WorkoutDuration:decimal}"
+
+@using BdtClient.AppServices.Claims
+@using BdtClient.AppServices.WorkoutType
+@using BdtClient.Themes
+@using BdtShared.Models.Timer;
+@using BdtClient.AppServices.Levels;
+@using BdtClient.AppServices.Theme;
+@using BdtClient.Shared.Dialogs;
+@using BdtShared.Dtos.WorkoutType;
+@using System.Timers
+
+@inject IWorkoutTypeService _workoutTypeService
+@inject IDialogService _dialogService
+@inject IClaimService _claimService
+@inject NavigationManager _navigation
+@inject BdtThemeService _themeService
+
+@if (Loading)
+{
+    <PageLoading />
+}
+else
+{
+    <style>
+        .apexcharts-datalabel-value {
+            fill: @colorTone.TextPrimary !important;
+            font-size: 17px;
+        }
+    </style>
+
+    <MudCard Outlined="true">
+        <MudContainer Style="height:90vh" Class="mt-4 px-2 chart-container" MaxWidth="MaxWidth.ExtraExtraLarge">
+
+            @if (!TimerStarted)
+            {
+                <MudNumericField Class="mt-2 mb-4" @onfocus="@(() => WorkoutDurationField.SelectAsync())" T="decimal" @bind-Value="WorkoutDuration" Label="Workout Time (minutes)" Variant="MudBlazor.Variant.Filled" Min="1" @ref="WorkoutDurationField" />
+                <MudNumericField Class="mb-4" @onfocus="@(() => TotalNumberOfSetsField.SelectAsync())" T="int" @bind-Value="TotalNumberOfSets" Label="Number of Sets" Variant="MudBlazor.Variant.Filled" Min="1" @ref="TotalNumberOfSetsField" />
+                <MudNumericField @onfocus="@(() => RestTimePerSetField.SelectAsync())" T="int" @bind-Value="RestTimePerSet" Label="Rest Time per Set (seconds)" Variant="MudBlazor.Variant.Filled" Min="0" @ref="RestTimePerSetField" />
+                
+                <MudGrid Justify="Justify.Center" Style="align-items: center;">
+                    <MudButton Style="width:120px;height:120px;border-radius:50%;margin-top:50%" Variant="MudBlazor.Variant.Filled" Color="MudBlazor.Color.Primary" OnClick="StartTimer">Start</MudButton>
+                </MudGrid>
+            }
+            else
+            {
+                <div hidden="@(ShowTimerChart)">
+                    <MudText Align="MudBlazor.Align.Center" Typo="Typo.h4">Workout starts in</MudText>
+                    <MudText Align="MudBlazor.Align.Center" Typo="Typo.h1">@BeforeWorkoutStarts</MudText>
+                </div>
+
+                <div hidden="@(!ShowTimerChart)">
+
+                    <MudGrid Justify="Justify.Center" Style="align-items: center;">
+                        @if (IsCountDown)
+                        {
+                            <MudChip T="int" Variant="MudBlazor.Variant.Text" OnClick="ToggleIsCountDown" Class="mt-10" Style="width:100%" Color="MudBlazor.Color.Primary">
+                                @{
+                                    var seconds = (int)Timers[0].TimerValue % 60;
+                                    var minutes = (int)Timers[0].TimerValue / 60;
+                                }
+                                Time left: @minutes:@(seconds < 10 ? $"0{seconds}" : seconds)
+                            </MudChip>
+                        }
+                        else
+                        {
+                            <MudChip T="int" Variant="MudBlazor.Variant.Text" OnClick="ToggleIsCountDown" Class="mt-10" Style="width:100%" Color="MudBlazor.Color.Primary">
+                                @{
+                                    var secondsElapsed = Timers[0].TotalTime - Timers[0].TimerValue;
+                                    var seconds = (int)secondsElapsed % 60;
+                                    var minutes = (int)secondsElapsed / 60;
+                                }
+                                Time elapsed: @minutes:@(seconds < 10 ? $"0{seconds}" : seconds)
+                            </MudChip>
+                        }
+                        @if (IsRestTime)
+                        {
+                            <MudChip T="int" Variant="MudBlazor.Variant.Text" Class="mb-5" Style="width:100%" Color="MudBlazor.Color.Warning">Rest</MudChip>
+                        }
+                        else
+                        {
+                            <MudChip T="int" Variant="MudBlazor.Variant.Text" Class="mb-5" Style="width:100%" Color="MudBlazor.Color.Success">Work!</MudChip>
+                        }
+                    </MudGrid>
+
+                    <ApexChart TItem="TimerData"
+                               Options="ChartOptions"
+                               @ref="@ApexChartRef">
+
+                        <ApexPointSeries Items="Timers"
+                                         SeriesType=SeriesType.RadialBar
+                                         XValue="@(e => e.TimerType)"
+                                         YValue="@(e => e.TimerPercentage)" />
+                    </ApexChart>
+
+                    <MudGrid Justify="Justify.Center" Style="align-items: center;">
+
+                        <MudToggleIconButton Size="MudBlazor.Size.Large" Icon="@Icons.Material.Filled.StopCircle" Color="@MudBlazor.Color.Error" ToggledChanged="@StopToggled"
+                                             ToggledIcon="@Icons.Material.Filled.RestartAlt" ToggledColor="@MudBlazor.Color.Warning" Toggled="@Stopped" ToggledSize="MudBlazor.Size.Large" />
+                        
+                        @if (!Stopped)
+                        {
+                            <MudToggleIconButton Size="MudBlazor.Size.Large" Icon="@Icons.Material.Filled.PauseCircle" Color="@MudBlazor.Color.Info" ToggledChanged="@PauseToggled"
+                                                 ToggledIcon="@Icons.Material.Filled.PlayCircle" ToggledColor="@MudBlazor.Color.Success" ToggledSize="MudBlazor.Size.Large" Toggled="@Paused" />
+                        }
+                        @if (Stopped)
+                        {
+                            <MudIconButton Size="MudBlazor.Size.Large" Icon="@Icons.Material.Filled.Cancel" Color="@MudBlazor.Color.Error" OnClick="CancelWorkout" />
+                            <MudIconButton Size="MudBlazor.Size.Large" Icon="@Icons.Material.Filled.Done" Color="@MudBlazor.Color.Success" OnClick="CompleteWorkout" />
+                        }
+                    </MudGrid>
+                </div>
+            }
+        </MudContainer>
+    </MudCard>
+}
+
+@code {
+    [Parameter] public decimal WorkoutDuration { get; set; }
+
+    private bool Loading = true;
+    private bool Stopped = false;
+    private bool Paused = false;
+    private bool TimerStarted = false;
+    private bool ShowTimerChart = false;
+    private bool IsRestTime = false;
+    private bool IsCountDown = true;
+
+    private int TotalNumberOfSets;
+    private int RestTimePerSet;
+    private int BeforeWorkoutStarts = 5;
+    private int SetCount = 1;
+
+    private TimerData[] Timers = new TimerData[2];
+    private Timer GlobalTimer;
+    private Timer SetTimer;
+
+    private IEnumerable<WorkoutTypeDto> WorkoutTypes;
+    private ApexChart<TimerData> ApexChartRef;
+    private ApexChartOptions<TimerData> ChartOptions = new();
+
+    private MudNumericField<decimal> WorkoutDurationField;
+    private MudNumericField<int> TotalNumberOfSetsField;
+    private MudNumericField<int> RestTimePerSetField;
+
+    private ColorTone colorTone = new(false);
+
+    private void ToggleIsCountDown()
+    {
+        IsCountDown = !IsCountDown;
+    }
+
+    private async Task CancelWorkout()
+    {
+        var cancelWorkoutDialog = await _dialogService.ShowAsync<CancelWorkoutDialog>("Cancel Workout");
+        var cancelWorkout = await cancelWorkoutDialog.GetReturnValueAsync<bool>();
+
+        if (cancelWorkout)
+        {
+            StopTimer();
+            TimerStarted = false;
+            ShowTimerChart = false;
+            Paused = false;
+            Stopped = false;
+            BeforeWorkoutStarts = 5;
+            ApexChartRef = null;
+        }
+    }
+
+    private async Task CompleteWorkout()
+    {
+        var completeWorkoutDialog = await _dialogService.ShowAsync<CompleteWorkoutDialog>("Complete Workout");
+        var completeWorkout = await completeWorkoutDialog.GetReturnValueAsync<bool>();
+
+        if (completeWorkout)
+        {
+            var secondsLeft = Timers[0].TimerValue;
+            var totalSeconds = Timers[0].TotalTime;
+
+            var minutesCompleted = Math.Round((totalSeconds - secondsLeft)/60, 1);
+
+            _navigation.NavigateTo($"/addworkout/{minutesCompleted}");
+        }
+    }
+
+    private void PauseToggled()
+    {
+        Paused = !Paused;
+    }
+
+    private async Task StopToggled()
+    {
+        if (Stopped)
+        {
+            var restartWorkoutDialog = await _dialogService.ShowAsync<RestartWorkoutDialog>("Restart Workout");
+            var restartWorkout = await restartWorkoutDialog.GetReturnValueAsync<bool>();
+
+            if (restartWorkout)
+            {
+                Stopped = false;
+                RestartTimer();
+            }
+        }
+        else
+        {
+            Stopped = true;
+        }
+    }
+
+    private void SetChartOptions(decimal setCountDown)
+    {
+        ChartOptions.PlotOptions = new PlotOptions
+            {
+                RadialBar = new PlotOptionsRadialBar
+                {
+                    DataLabels = new RadialBarDataLabels
+                    {
+                        Total = new RadialBarDataLabelsTotal
+                        {
+                            Show = true,
+                            FontSize = "42",
+                            Color = @colorTone.TextPrimary,
+                            Label = Math.Round(setCountDown, 0).ToString(),
+                            Formatter = $@"function (w) {{
+                                return 'Set: {SetCount}/{TotalNumberOfSets}'
+                            }}"
+                        }
+                    }
+                }
+            };
+
+        if (IsRestTime)
+            ChartOptions.Colors = new List<string> { colorTone.Primary, colorTone.WarningLighten };
+        else
+            ChartOptions.Colors = new List<string> { colorTone.Primary, colorTone.SuccessLighten };
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        WorkoutTypes = (await _workoutTypeService.GetAllWorkoutTypes()).Data;
+
+        _themeService.OnThemeChanged += OnThemeChanged;
+
+        Loading = false;
+    }
+
+    private async void OnThemeChanged()
+    {
+        var isDark = await _claimService.IsDarkTheme();
+        colorTone = new ColorTone(isDark);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        _themeService.OnThemeChanged -= OnThemeChanged;
+    }
+
+    private int GetTimePerSet()
+    {
+        var timePerSet = (WorkoutDuration / TotalNumberOfSets) * 60;
+        return (int)timePerSet;
+    }
+
+    private async Task StartTimer()
+    {
+        if (WorkoutDuration < 1 || TotalNumberOfSets < 1)
+        {
+            //await App.Current.MainPage.DisplayAlert("Oops", "Please make sure you entered values for 'Workout Time' and 'Number Of Sets'.", "OK");
+            return;
+        }
+
+        var globalTimerSeconds = WorkoutDuration * 60;
+        var timePerSet = GetTimePerSet();
+        SetChartOptions(0);
+
+        Timers[0] = new TimerData
+            {
+                TimerType = "Global",
+                TimerValue = globalTimerSeconds,
+                TotalTime = globalTimerSeconds
+            };
+
+        Timers[1] = new TimerData
+            {
+                TimerType = "Set",
+                TimerValue = timePerSet,
+                TotalTime = timePerSet
+            };
+
+        if (ApexChartRef is not null)
+            await ApexChartRef.UpdateSeriesAsync(false);
+
+        TimerStarted = true;
+
+        BeforeWorkoutStarts = 5;
+        while (BeforeWorkoutStarts > 0)
+        {
+            StateHasChanged();
+            await Task.Delay(1000);
+            BeforeWorkoutStarts--;
+        }
+
+        ShowTimerChart = true;
+        StateHasChanged();
+
+        GlobalTimer = new Timer(1000);
+        SetTimer = new Timer(1000);
+
+        GlobalTimer.Elapsed += GlobalTimerElapsed;
+        SetTimer.Elapsed += SetTimerElapsed;
+
+        GlobalTimer.Start();
+        SetTimer.Start();
+    }
+
+    private void GlobalTimerElapsed(object sender, ElapsedEventArgs e)
+    {
+        BeforeWorkoutStarts--;
+
+        if (BeforeWorkoutStarts <= 0)
+        {
+            GlobalTimer.Stop();
+            GlobalTimer.Dispose();
+        }
+
+        InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+    }
+
+    private void SetTimerElapsed(object sender, ElapsedEventArgs e)
+    {
+        SetTimerElapsedAsync().GetAwaiter().GetResult();
+    }
+
+    private async Task SetTimerElapsedAsync()
+    {
+        await InvokeAsync(async () =>
+        {
+            if (!Paused && !Stopped)
+            {
+                Timers[0].TimerValue--;
+                Timers[1].TimerValue--;
+
+                if (Timers[1].TimerValue <= 0)
+                {
+                    Timers[1].TimerValue = GetTimePerSet();
+                    SetCount++;
+                }
+
+                IsRestTime = Timers[1].TimerValue <= RestTimePerSet;
+
+                if (IsCountDown)
+                {
+                    SetChartOptions(Timers[1].TimerValue);
+                }
+                else
+                {
+                    SetChartOptions(Timers[1].TotalTime - Timers[1].TimerValue);
+                }
+                await ApexChartRef.UpdateOptionsAsync(false, false, false);
+                await ApexChartRef.UpdateSeriesAsync(false);
+
+                StateHasChanged();
+
+                if (Timers[0].TimerValue <= 0)
+                {
+                    StopTimer();
+                    _navigation.NavigateTo($"/addworkout/{WorkoutDuration}");
+                }
+            }
+        });
+    }
+
+    private void StopTimer()
+    {
+        TimerStarted = false;
+        GlobalTimer?.Stop();
+        SetTimer?.Stop();
+
+        if (GlobalTimer != null)
+        {
+            GlobalTimer.Elapsed -= GlobalTimerElapsed;
+            GlobalTimer.Dispose();
+            GlobalTimer = null;
+        }
+
+        if (SetTimer != null)
+        {
+            SetTimer.Elapsed -= SetTimerElapsed;
+            SetTimer.Dispose();
+            SetTimer = null;
+        }
+    }
+
+    private async Task RestartTimer()
+    {
+        GlobalTimer?.Dispose();
+        SetTimer?.Dispose();
+
+        ShowTimerChart = false;
+        Paused = false;
+
+        StartTimer();
+    }
+}

@@ -1,0 +1,240 @@
+﻿@using BdtClient.AppServices.Claims
+@using BdtClient.Helpers;
+@using BdtClient.Themes
+@using BdtShared.Models.Charts;
+@using BdtClient.AppServices.Theme
+@using BdtShared.Static;
+@using BdtShared.Dtos.Workouts;
+@using BdtShared.Models.Workout;
+
+@inject BdtThemeService _themeService
+@inject IClaimService _claimService
+@implements IDisposable
+
+<style>
+    .rz-tick {
+        font-size: 0.5rem;
+    }
+
+    div.rz-chart.rz-scheme-pastel svg {
+        height: 100% !important;
+    }
+
+    .rz-legend-item-text {
+        font-size: 0.5rem !important;
+    }
+</style>
+
+<MudPaper Style="border-radius:20px;" Class="mb-5 mud-elevation-2" Outlined="true">
+    <MudContainer Class="mt-5 px-1 chart" MaxWidth="MaxWidth.ExtraExtraLarge">
+        <MudContainer Style="height: 230px" Class="mt-0 px-0" MaxWidth="MaxWidth.ExtraExtraLarge">
+            <MudText Typo="Typo.body2" Align="MudBlazor.Align.Center">@Title</MudText>
+            <MudText Style="font-size:10px" Typo="Typo.body2" Align="MudBlazor.Align.Center">6 Count PB: @SixCountPb</MudText>
+            <MudText Style="font-size:10px" Typo="Typo.body2" Align="MudBlazor.Align.Center">Navy Seal PB: @NavySealPb</MudText>
+            <RadzenChart Style="height: 185px; margin: 0 auto;">
+                @{
+                    var allDataKeys = AllData.Keys.ToArray();
+                }
+                @for (int i = 0; i < allDataKeys.Length; i++)
+                {
+                    var workoutType = allDataKeys[i];
+                    var color = ChartColors[i];
+                    <RadzenStackedColumnSeries StrokeWidth="1" Visible="@ShowData" Data="@AllData[workoutType]" CategoryProperty="xAxis" Title="@workoutType.ToString()" ValueProperty="yAxis" RenderingOrder="1" Stroke="@color.Item1" Fill="@color.Item2">
+                        <RadzenSeriesDataLabels Visible="@ShowDataLabels" />
+                    </RadzenStackedColumnSeries>
+                }
+                <RadzenColumnOptions Radius="0" Width="@BarWidth" />
+                <RadzenCategoryAxis Min="null" Padding="10" Formatter="@FormatXAxisDates">
+                </RadzenCategoryAxis>
+                <RadzenValueAxis Formatter="@ConvertToString">
+                    <RadzenGridLines StrokeWidth="0.25" Visible="true" />
+                </RadzenValueAxis>
+                <RadzenLegend Visible="true" Position="Radzen.Blazor.LegendPosition.Bottom" />
+            </RadzenChart>
+        </MudContainer>
+    </MudContainer>
+</MudPaper>
+
+@code {
+    [Parameter] public string Title { get; set; }
+    [Parameter] public IEnumerable<WorkoutDto> Data { get; set; }
+    [Parameter] public string ViewBy { get; set; }
+
+    private (string, string)[] ChartColors;
+
+    private bool Smooth = true;
+    private bool ShowDataLabels = false;
+    private bool ShowData = true;
+    private int BarWidth = 6;
+
+    private Dictionary<string, DateDataItem[]> AllData = new();
+
+    public int SixCountPb;
+    public int NavySealPb;
+
+    private ColorTone colorTone = new(false);
+
+    protected override void OnParametersSet()
+    {
+        CalculateChartsBasedOnViewByValue();
+        ChartColors = new (string, string)[]
+        {
+            (colorTone.PrimaryDarken, colorTone.PrimaryLighten),
+            (colorTone.SecondaryDarken, colorTone.SecondaryLighten),
+            (colorTone.TertiaryDarken, colorTone.TertiaryLighten),
+            (colorTone.InfoDarken, colorTone.InfoLighten),
+            (colorTone.SuccessDarken, colorTone.SuccessLighten),
+            (colorTone.WarningDarken, colorTone.WarningLighten),
+            (colorTone.ErrorDarken, colorTone.ErrorLighten)
+        };
+    }
+
+    protected override void OnInitialized()
+    {
+        _themeService.OnThemeChanged += StateHasChanged;
+    }
+
+    private async void OnThemeChanged()
+    {
+        var isDark = await _claimService.IsDarkTheme();
+        colorTone = new ColorTone(isDark);
+        StateHasChanged();
+    }
+
+    private void CalculateChartsBasedOnViewByValue()
+    {
+        if (ViewBy.Equals("Workout"))
+        {
+            BarWidth = 6;
+        }
+        else
+        {
+            BarWidth = 9;
+        }
+
+        var now = DateTime.Now;
+
+        if (ViewBy.Equals("Week"))
+        {
+            var xMonthAgo = now.AddMonths(-4);
+            var xMonthData = Data.Where(x => x.Date.Date >= xMonthAgo).OrderBy(x => x.Date);
+
+            var newData = FillInDates(xMonthData, xMonthAgo, now);
+
+            var weeklySummaries = new Dictionary<int, DateDataItem[]>();
+            foreach (var workout in newData)
+            {
+                var weeklySummary = SummarizeWeeks(workout.Value);
+                AllData[workout.Key] = weeklySummary;
+            }
+        }
+        else
+        {
+            var oneMonthAgo = now.AddMonths(-1);
+            var oneMonthData = Data.Where(x => x.Date.Date >= oneMonthAgo).OrderBy(x => x.Date);
+
+            var newData = FillInDates(oneMonthData, oneMonthAgo, now);
+
+            foreach (var workout in newData)
+            {
+                AllData[workout.Key] = workout.Value;
+            }
+        }
+
+        CalculatePBs();
+    }
+
+    private Dictionary<string, DateDataItem[]> FillInDates(IEnumerable<WorkoutDto> data, DateTime from, DateTime until)
+    {
+        var newWorkoutData = new Dictionary<string, DateDataItem[]>();
+
+        var workoutDates = data.Select(x => x.Date.Date);
+
+        var dayCount = (int)(until - from).TotalDays + 1;
+        foreach (var workoutTypeName in data.Select(x => x.WorkoutType.Name).Distinct())
+        {
+            newWorkoutData.Add(workoutTypeName, new DateDataItem[dayCount]);
+        }
+
+        for (int i = 0; i < dayCount; i++)
+        {
+            var newDate = from.AddDays(i).Date;
+            foreach (var workout in newWorkoutData)
+            {
+                if (workoutDates.Contains(newDate))
+                {
+                    int value = 0;
+                    var workoutsForDay = data.Where(x => x.Date.Date == newDate);
+                    foreach (var workoutForDay in workoutsForDay)
+                    {
+                        value += workoutForDay.WokoutValues.Where(x => x.WorkoutType.Name == workout.Key)?.Sum(x => x.Amount) ?? 0;
+                    }
+                    
+                    workout.Value[i] = new DateDataItem { xAxis = newDate, yAxis = value };
+                }
+                else
+                {
+                    workout.Value[i] = new DateDataItem { xAxis = newDate, yAxis = 0 };
+                }
+            }
+        }
+
+        return newWorkoutData;
+    }
+
+
+    private void CalculatePBs()
+    {
+        if (AllData.Keys.Contains("6 Count"))
+            SixCountPb = (int)AllData["6 Count"].Max(x => x.yAxis);
+        if (AllData.Keys.Contains("Navy Seal"))
+            NavySealPb = (int)AllData["Navy Seal"].Max(x => x.yAxis);
+
+        if (ViewBy.Equals("Workout"))
+        {
+            SessionVariables.SixCountPb = SixCountPb;
+            SessionVariables.NavySealPb = NavySealPb;
+        }
+    }
+
+    private static DateDataItem[] SummarizeWeeks(IEnumerable<DateDataItem> data)
+    {
+        var weeklySummaries = data
+            .GroupBy(workout => GetStartOfWeek(workout.xAxis))
+            .Select(group => new DateDataItem
+                {
+                    xAxis = group.Key,
+                    yAxis = group.Sum(x => x.yAxis)
+                })
+            .ToArray();
+
+        return weeklySummaries;
+    }
+
+    private static DateTime GetStartOfWeek(DateTime date)
+    {
+        int diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
+        return date.AddDays(-diff).Date;
+    }
+
+    public void Dispose()
+    {
+        _themeService.OnThemeChanged -= OnThemeChanged;
+    }
+
+    string ConvertToString(object value)
+    {
+        return value.ToString();
+    }
+
+    string FormatXAxisDates(object value)
+    {
+        if (value != null)
+        {
+            var x = Convert.ToDateTime(value).ToString("dd-MMM");
+            return x;
+        }
+
+        return string.Empty;
+    }
+}

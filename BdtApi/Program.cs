@@ -22,7 +22,6 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Stripe;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -138,7 +137,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowBdtUser",
         builder =>
         {
-            builder.WithOrigins("https://localhost:7114")
+            builder.WithOrigins("https://localhost:7114", "https://purple-river-0804f4b0f.5.azurestaticapps.net")
                    .AllowAnyHeader()
                    .AllowAnyMethod();
         });

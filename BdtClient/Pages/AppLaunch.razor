@@ -18,7 +18,7 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        await _authState.MarkUserAsLoggedOutAsync();
+        //await _authState.MarkUserAsLoggedOutAsync();
         var authState = await _authState.GetAuthenticationStateAsync();
 
         if (authState.User.Identity.IsAuthenticated)

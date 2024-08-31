@@ -2,7 +2,6 @@ using Azure.Identity;
 using BdtApi.Application;
 using BdtApi.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +12,7 @@ builder.Configuration.AddAzureKeyVault(new Uri(kvUrl), new DefaultAzureCredentia
 builder.Configuration.SetEnvironmentVariables();
 
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer()
+builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();

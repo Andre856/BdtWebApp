@@ -26,7 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BdtApi.Application\BdtApi.Application.csproj" />
-    <ProjectReference Include="..\BdtDomain\BdtShared.csproj" />
+    <ProjectReference Include="..\BdtShared\BdtShared.csproj" />
   </ItemGroup>
 
 </Project>

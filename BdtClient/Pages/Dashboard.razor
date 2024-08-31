@@ -21,6 +21,7 @@
 @inject IPlannerService _plannerService
 @inject IWeekdayService _weekdayService
 @inject ILevelService _levelService
+@inject IBdtDialogService _dialogService
 @inject NavigationManager _navigation
 @inject BdtClient.AppServices.Theme.BdtThemeService _themeService
 
@@ -144,12 +145,12 @@ else
 
             else
             {
-                //await App.Current.MainPage.DisplayAlert("Oops", $"Error retrieving data: {workoutResponse.ErrorMessage}", "OK");
+                await _dialogService.ShowErrorDialog("Oops!", $"Error retrieving data: {workoutResponse.ErrorMessage}");
             }
         }
         catch (Exception ex)
         {
-            //await App.Current.MainPage.DisplayAlert("Oops", "There was an issue while attempting to retrieve your data.", "OK");
+            await _dialogService.ShowErrorDialog("Oops!", "There was an issue while attempting to retrieve your data.");
         }
     }
 }

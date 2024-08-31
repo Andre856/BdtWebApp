@@ -11,6 +11,7 @@
 @inject IAppService _appService
 @inject IPlannerService _plannerService
 @inject IClaimService _claimService
+@inject IBdtDialogService _dialogService
 
 <MudCard Style="height:90vh">
     <MudStack>
@@ -38,7 +39,7 @@
         var weeklyPlansResp = await _plannerService.GetUserPlans();
         if (!weeklyPlansResp.IsSuccess)
         {
-            //await App.Current.MainPage.DisplayAlert("Oops", "We encountered an issue while attempting to update your notification time, please try again.", "OK");
+            await _dialogService.ShowErrorDialog("Oops!", $"We encountered an issue while attempting to update your notification time, please try again.");
             return;
         }
         var weeklyPlans = weeklyPlansResp.Data;
@@ -46,11 +47,11 @@
         var resp = await _appService.UpdateUserNotificationTime((TimeSpan)NotificationTime);
         if (resp.IsSuccess)
         {
-            //NOtification time updated
+            await _dialogService.ShowSucessDialog("Oops!", $"Your notification time has been updated.");
         }
         else
         {
-            //await App.Current.MainPage.DisplayAlert("Oops", "We encountered an issue while attempting to update your notification time, please try again.", "OK");
+            await _dialogService.ShowErrorDialog("Oops!", $"We encountered an issue while attempting to update your notification time, please try again.");
         }
     }
 
@@ -64,7 +65,7 @@
                 var weeklyPlansResp = await _plannerService.GetUserPlans();
                 if (!weeklyPlansResp.IsSuccess)
                 {
-                    //await App.Current.MainPage.DisplayAlert("Oops", "We encountered an issue while attempting to enable your notifications, please try again.", "OK");
+                    await _dialogService.ShowErrorDialog("Oops!", $"We encountered an issue while attempting to enable your notifications, please try again.");
                     return;
                 }
                 var weeklyPlans = weeklyPlansResp.Data;

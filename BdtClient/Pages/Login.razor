@@ -13,10 +13,10 @@
 @using BdtShared.Dtos.Users;
 
 @inject IAppService _appService
-@inject IDialogService _dialogService
+@inject IBdtDialogService _dialogService
 @inject IClaimService _claimService
 @inject NavigationManager _navigation
-@inject BdtClient.AppServices.Theme.BdtThemeService _themeService
+@inject BdtThemeService _themeService
 @inject CustomAuthStateProvider _authStateProvider
 
 <MudContainer Style="height:80vh;width:100%" Class="mt-2">
@@ -75,11 +75,7 @@
 
     private async Task ForgotPasswordClicked()
     {
-        var parameters = new DialogParameters();
-        parameters.Add("Email", Email);
-        var dialogResponse = await _dialogService.ShowAsync<ResetPasswordDialog>("Next Workout", parameters);
-
-        var email = await dialogResponse.GetReturnValueAsync<string>();
+        var email = await _dialogService.ResetPasswordDialog(Email);
 
         _navigation.NavigateTo($"/forgotpassword/{email}");
     }
@@ -104,7 +100,7 @@
                 _navigation.NavigateTo($"/pleaseverifyemail/{authenticateUserDto.Email}/{authenticateUserDto.Email}/{authenticateUserDto.Password}");
             else
             {
-                // Show error message or dialog
+                await _dialogService.ShowErrorDialog("Oops!", "Your login has failed. Please try again.");
             }
         }
         else
@@ -118,9 +114,6 @@
 
                 var isFirstLogin = await _claimService.IsFirstLogin();
 
-                // if (_themeService.IsDarkTheme != isDarkMode)
-                //     await _themeService.ChangeColorTone(isDarkMode);
-
                 if (isFirstLogin)
                 {
                     _navigation.NavigateTo("/getstarted");
@@ -132,7 +125,8 @@
             }
             else
             {
-                //Notify that there was an error
+                await _dialogService.ShowErrorDialog("Oops!", "Something went wrong. Please try again");
+
                 _navigation.NavigateTo("/login");
             }
         }

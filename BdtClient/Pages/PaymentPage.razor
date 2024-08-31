@@ -11,6 +11,7 @@
 @inject NavigationManager _navigation
 @inject IStripeService _stripeService
 @inject IAppService _appService
+@inject IBdtDialogService _dialogService
 
 @if (!SomethingWentWrong)
 {
@@ -50,12 +51,12 @@ else
         var result = await _stripeService.SendBillingInfo(BillingInfo);
         if (result.Success)
         {
-            //await App.Current.MainPage.DisplayAlert("Payment Successful!", $"You can now start using the app!.", "OK");
+            await _dialogService.ShowSucessDialog("Payment Successful!", $"You can now start using the app!");
             await GoToDashboard();
         }
         else
         {
-            //await App.Current.MainPage.DisplayAlert("Oops", $"Something went wrong during your checkout, please try again.", "OK");
+            await _dialogService.ShowErrorDialog("Oops!", $"Something went wrong during your checkout, please try again.");
             _navigation.NavigateTo($"/payment/{StripeApiId}");
         }
     }
@@ -70,10 +71,10 @@ else
         else
         {
             SomethingWentWrong = true;
-            // await App.Current.MainPage.DisplayAlert("Oops", @"
-            //     Your payment was successful, however, we are having trouble verifying it in our database.\n
-            //     Please click the 'Go to Dashboard' button. If this message shows up again, please contact\n
-            //     technical support. Thank you.", "OK");
+            await _dialogService.ShowErrorDialog("Oops!", @"
+                Your payment was successful, however, we are having trouble verifying it in our database.\n
+                Please click the 'Go to Dashboard' button. If this message shows up again, please contact\n
+                technical support by emailing andre@busydadtraining.com. Thank you.");
         }
     }
 }

@@ -9,6 +9,7 @@
 @inject ICheckoutService _checkoutService
 @inject IBdtProductService _bdtProductService
 @inject IJSRuntime _jsRuntime
+@inject IBdtDialogService _dialogService
 @inject NavigationManager _navigation
 
 @if (Products is not null)
@@ -66,7 +67,7 @@ else
         var response = await _bdtProductService.GetAllProducts();
         if (!response.IsSuccess)
         {
-            //await App.Current.MainPage.DisplayAlert("Oops", $"There was an issue trying to load the this page, please try again.", "OK");
+            await _dialogService.ShowErrorDialog("Oops!", "There was an issue trying to load the this page, please try again.");
             return;
         }
 

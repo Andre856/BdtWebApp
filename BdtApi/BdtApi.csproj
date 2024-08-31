@@ -44,10 +44,4 @@
     <ProjectReference Include="..\BdtDomain\BdtShared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="EmailTemplate\EmailConfirm.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

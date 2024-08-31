@@ -259,46 +259,80 @@ public class UsersController : ControllerBase
     [HttpPost("RegisterUser")]
     public async Task<ActionResult<ApiWrapper<bool>>> RegisterUser(RegisterUserDto registerUserDto)
     {
-        var serverAddressesFeature = _server.Features.Get<IServerAddressesFeature>();
-        var thisApiUrl = serverAddressesFeature.Addresses.FirstOrDefault();
-
-        var user = await _userManager.FindByEmailAsync(registerUserDto.Email);
-        if (user is not null)
-            return BadRequest(ApiWrapper<bool>.Failed("This email already exists."));
-
-        var userToBeCreated = _mapper.Map<UserEntity>(registerUserDto);
-
-        var response = await _userManager.CreateAsync(userToBeCreated, registerUserDto.Password);
-
-        if (!response.Succeeded)
-            return BadRequest(ApiWrapper<bool>.Failed("Could not register user."));
-
-        var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(userToBeCreated);
-        if (string.IsNullOrEmpty(emailConfirmationToken))
-            return BadRequest("Error.");
-
-        await _userManager.SetAuthenticationTokenAsync(userToBeCreated, PROVIDER, VERIFICATIONTOKEN, emailConfirmationToken);
-
-        var link = $"{thisApiUrl}/api/v1/Users/VerifyUser?uid={userToBeCreated.Id}&token={emailConfirmationToken}";
-
-        using var reader = new StreamReader(_emailHtmlPath);
-        string emailHtml = reader.ReadToEnd();
-        emailHtml = emailHtml.Replace("{{UserName}}", userToBeCreated.UserName);
-        emailHtml = emailHtml.Replace("{{Link}}", link);
-
-        var emailDto = new EmailDto
+        try
         {
-            To = userToBeCreated.Email,
-            Subject = "Busy Dad Training Email Confirmation",
-            Body = emailHtml
-        };
+            var serverAddressesFeature = _server.Features.Get<IServerAddressesFeature>();
+            var thisApiUrl = serverAddressesFeature.Addresses.FirstOrDefault();
 
-        var emailSent = _emailService.SendEmail(emailDto);
+            var user = await _userManager.FindByEmailAsync(registerUserDto.Email);
+            if (user is not null)
+                return BadRequest(ApiWrapper<bool>.Failed("This email already exists."));
 
-        if (emailSent)
-            return Ok(ApiWrapper<bool>.Success(true));
+            var userToBeCreated = _mapper.Map<UserEntity>(registerUserDto);
 
-        return BadRequest(ApiWrapper<string>.Failed("Could not register user."));
+            var response = await _userManager.CreateAsync(userToBeCreated, registerUserDto.Password);
+
+            if (!response.Succeeded)
+                return BadRequest(ApiWrapper<bool>.Failed("Could not register user."));
+
+            var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(userToBeCreated);
+            if (string.IsNullOrEmpty(emailConfirmationToken))
+                return BadRequest("Error.");
+
+            await _userManager.SetAuthenticationTokenAsync(userToBeCreated, PROVIDER, VERIFICATIONTOKEN, emailConfirmationToken);
+
+            thisApiUrl = "https://bdtapi-ghgqdkfbdxb2etgb.eastus-01.azurewebsites.net";
+            var link = $"{thisApiUrl}/api/v1/Users/VerifyUser?uid={userToBeCreated.Id}&token={emailConfirmationToken}";
+
+            //using var reader = new StreamReader(_emailHtmlPath);
+            //string emailHtml = reader.ReadToEnd();
+
+            var emailHtml = $"""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8" />
+                    <title></title>
+                </head>
+                <body>
+                    <img src="http://drive.google.com/uc?export=view&id=1p9IgKdAEsL8Ct8Vuf23zqjUsiyYZYa" alt="Busy Dad Training" />
+
+                    <p>Hi {userToBeCreated.UserName}!,</p>
+                    <br />
+                    <p>
+                        Thank you for signing up to Busy Dad Training!
+                        <br />
+                        You have created a new account on the Busy Dad Training App.
+                        <br />
+                        Please click the following linke to verify your email address.
+                        <br />
+                        <br />
+                        <a href="{link}">Verify email</a>
+                    </p>
+                </body>
+                </html>
+                """;
+            //emailHtml = emailHtml.Replace("{{UserName}}", userToBeCreated.UserName);
+            //emailHtml = emailHtml.Replace("{{Link}}", link);
+
+            var emailDto = new EmailDto
+            {
+                To = userToBeCreated.Email,
+                Subject = "Busy Dad Training Email Confirmation",
+                Body = emailHtml
+            };
+
+            var emailSent = _emailService.SendEmail(emailDto);
+
+            if (emailSent)
+                return Ok(ApiWrapper<bool>.Success(true));
+
+            return BadRequest(ApiWrapper<string>.Failed("Could not register user."));
+        }
+        catch(Exception ex)
+        {
+            return BadRequest(ApiWrapper<string>.Failed(ex.Message));
+        }
     }
 
     [AllowAnonymous]
@@ -356,11 +390,8 @@ public class UsersController : ControllerBase
 
         var result = await _userManager.ConfirmEmailAsync(user, token.Replace(" ", "+"));
 
-        string imageUrl = "https://localhost:7114/images/busy_dad_black_logo_medium.png";
-        if (Globals.Environment == EnvironmentEnums.Devevelopment)
-        {
-            imageUrl = "https://localhost:7114/images/busy_dad_black_logo_medium.png";
-        }
+        string imageUrl = "https://purple-river-0804f4b0f.5.azurestaticapps.net/images/busy_dad_black_logo_medium.png";
+
         if (result.Succeeded)
         {
             var htmlContent = $"""
@@ -370,7 +401,7 @@ public class UsersController : ControllerBase
                     <h2>Your email has been verified.</h2>
                     <p>Please continue to the login screen to complete your registration.</p>
                     <br>
-                    <a href="https://localhost:7114/login">Busy Dad Login</a>
+                    <a href="https://purple-river-0804f4b0f.5.azurestaticapps.net/">Busy Dad Login</a>
                 </body>
                 </html>
                 """;

@@ -4,6 +4,7 @@
 @using BdtShared.Dtos.Users;
 
 @inject IAppService _appService
+@inject IBdtDialogService _dialogService
 @inject NavigationManager _navigation
 
 <MudContainer Style="height:80vh;width:100%" Class="mt-5">
@@ -64,11 +65,12 @@
         ShowSpinner = false;
         if (resp.IsSuccess)
         {
-            //await App.Current.MainPage.DisplayAlert("Email Sent", "Verification email has been sent, please confirm email by clicking the link in the email.", "Ok");
+            await _dialogService.ShowSucessDialog("Email has been sent!", "Verification email has been sent! Please confirm email by clicking the link in the email.");
         }
         else
         {
-            //await App.Current.MainPage.DisplayAlert("Failed to send email", "There was a problem sending the email. If you continue to have issues, please contact us.", "Ok");
+            await _dialogService.ShowErrorDialog("Oops!", @"There was a problem sending the verification email.
+                If you continue to have issues, please contact support by emailing andre@busydadtraining.com");
         }
     }
 

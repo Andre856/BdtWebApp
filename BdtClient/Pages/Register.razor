@@ -11,8 +11,9 @@
 @inject IAppService _appService
 @inject IDialogService _dialogService
 @inject IClaimService _claimService
+@inject IBdtDialogService _dialogService
 @inject NavigationManager _navigation
-@inject BdtClient.AppServices.Theme.BdtThemeService _themeService
+@inject BdtThemeService _themeService
 
 <MudGrid>
     <MudItem xs="12" sm="7">
@@ -78,8 +79,7 @@
 
     private async Task OpenTsAndCs()
     {
-        var tsAndCs = await _dialogService.ShowAsync<TermsAndConditionDialog>();
-        var tsAndCsOk = await tsAndCs.GetReturnValueAsync<bool>();
+        var tsAndCsOk = await _dialogService.TermsAndConditionDialog();
     }
 
     private async Task Submit()
@@ -104,7 +104,7 @@
         else
         {
             ShowSpinner = false;
-            //await App.Current.MainPage.DisplayAlert("Oops", "Registration has failed, please try again", "Try Again");
+            await _dialogService.ShowErrorDialog("Oops!", "Registration has failed, please try again.");
         }
     }
 

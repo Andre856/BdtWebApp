@@ -12,8 +12,8 @@
 @using System.Timers
 
 @inject IWorkoutTypeService _workoutTypeService
-@inject IDialogService _dialogService
 @inject IClaimService _claimService
+@inject IBdtDialogService _dialogService
 @inject NavigationManager _navigation
 @inject BdtThemeService _themeService
 
@@ -153,8 +153,7 @@ else
 
     private async Task CancelWorkout()
     {
-        var cancelWorkoutDialog = await _dialogService.ShowAsync<CancelWorkoutDialog>("Cancel Workout");
-        var cancelWorkout = await cancelWorkoutDialog.GetReturnValueAsync<bool>();
+        var cancelWorkout = await _dialogService.CancelWorkoutDialog();
 
         if (cancelWorkout)
         {
@@ -170,8 +169,7 @@ else
 
     private async Task CompleteWorkout()
     {
-        var completeWorkoutDialog = await _dialogService.ShowAsync<CompleteWorkoutDialog>("Complete Workout");
-        var completeWorkout = await completeWorkoutDialog.GetReturnValueAsync<bool>();
+        var completeWorkout = await _dialogService.CompleteWorkoutDialog();
 
         if (completeWorkout)
         {
@@ -193,8 +191,7 @@ else
     {
         if (Stopped)
         {
-            var restartWorkoutDialog = await _dialogService.ShowAsync<RestartWorkoutDialog>("Restart Workout");
-            var restartWorkout = await restartWorkoutDialog.GetReturnValueAsync<bool>();
+            var restartWorkout = await _dialogService.RestartWorkoutDialog();
 
             if (restartWorkout)
             {
@@ -267,7 +264,7 @@ else
     {
         if (WorkoutDuration < 1 || TotalNumberOfSets < 1)
         {
-            //await App.Current.MainPage.DisplayAlert("Oops", "Please make sure you entered values for 'Workout Time' and 'Number Of Sets'.", "OK");
+            await _dialogService.ShowErrorDialog("Oops!", $"Please make sure you entered values for 'Workout Time' and 'Number Of Sets'.");
             return;
         }
 

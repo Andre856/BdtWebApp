@@ -4,7 +4,7 @@
 @using BdtClient.Themes
 @using BdtShared.Dtos.Planner;
 
-@inject IDialogService _dialogService
+@inject IBdtDialogService _dialogService
 @inject IClaimService _claimService
 @inject BdtThemeService _themeService
 
@@ -63,10 +63,7 @@
 
     private async Task NextWorkoutClicked(PlannerDto plannerDto)
     {
-        var parameters = new DialogParameters();
-        parameters.Add("WorkoutDuration", plannerDto.WorkoutDuration);
-        parameters.Add("IsFromPlanner", false);
-        var dialogResponse = await _dialogService.ShowAsync<NextWorkoutDashboardDialog>("Next Workout", parameters);
+        await _dialogService.NextWorkoutDashboardDialog(plannerDto.WorkoutDuration, isFromPlanner: false);
     }
 
     public void Dispose()

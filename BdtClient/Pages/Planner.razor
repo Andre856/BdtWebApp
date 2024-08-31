@@ -19,7 +19,7 @@
 @inject IPlannerService _plannerSevice
 @inject IWorkoutTypeService _workoutTypeService
 @inject IWeekdayService _weekdayService
-@inject IDialogService _dialogService
+@inject IBdtDialogService _dialogService
 
 @if (Loading)
 {
@@ -103,10 +103,7 @@ else
 
     private async Task NextWorkoutClicked(PlannerDto plannerDto)
     {
-        var parameters = new DialogParameters();
-        parameters.Add("WorkoutDuration", plannerDto.WorkoutDuration);
-        parameters.Add("IsFromPlanner", true);
-        var dialogResponse = await _dialogService.ShowAsync<NextWorkoutDashboardDialog>("Next Workout", parameters);
+        await _dialogService.NextWorkoutDashboardDialog(plannerDto.WorkoutDuration, isFromPlanner: true);
     }
 
     private PlannerDto FindNextWorkout()
@@ -134,24 +131,19 @@ else
         }
         else
         {
-            //await App.Current.MainPage.DisplayAlert("Oops", "We encountered an issue while attempting to delete this workout, please try again.", "OK");
+            await _dialogService.ShowErrorDialog("Oops!", "We encountered an issue while attempting to delete this workout, please try again.");
         }
 
         if (WeeklyPlans.Count() > 0)
             NextWorkout = FindNextWorkout();
 
         //if (NotificationEnabled)
-            //Helper.SetNotifications(WeeklyPlans);
+        //Helper.SetNotifications(WeeklyPlans);
     }
 
     private async Task CreateNewWorkout(int weekdayId)
     {
-        var parameters = new DialogParameters();
-        parameters.Add("WorkoutTypes", WorkoutTypes);
-        parameters.Add("TimeScheduled", TimeScheduled);
-        var dialogResponse = await _dialogService.ShowAsync<CreatePlanDialog>("Create Plan", parameters);
-
-        var newWorkout = await dialogResponse.GetReturnValueAsync<CreatePlanDialogModel>();
+        var newWorkout = await _dialogService.CreatePlanDialog(WorkoutTypes, TimeScheduled);
 
         if (newWorkout is null)
             return;
@@ -171,7 +163,7 @@ else
         }
         else
         {
-            //await App.Current.MainPage.DisplayAlert("Oops", "We encountered an issue while attempting to schedule this workout, please try again.", "OK");
+            await _dialogService.ShowErrorDialog("Oops!", "We encountered an issue while attempting to schedule this workout, please try again.");
         }
 
         if (WeeklyPlans.Count() > 0)
@@ -199,10 +191,11 @@ else
         }
         else
         {
-            //await App.Current.MainPage.DisplayAlert("Oops", "We encountered an issue while attempting to retrieve your Weekly schedule, please try again.", "OK");
-            WeeklyPlans = new List<PlannerDto>();
-            Weekdays = new List<WeekdayDto>();
-            WorkoutTypes = new List<WorkoutTypeDto>();
+            await _dialogService.ShowErrorDialog("Oops!", "We encountered an issue while attempting to retrieve your Weekly schedule, please try again.");
+
+            WeeklyPlans = [];
+            Weekdays = [];
+            WorkoutTypes = [];
             TimeScheduled = 0;
             Loading = false;
         }

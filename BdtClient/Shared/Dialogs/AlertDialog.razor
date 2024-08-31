@@ -1,0 +1,20 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudStack>
+            <MudText Typo="Typo.body2">@AlertText</MudText>
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Ok">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public required string AlertText { get; set; }
+
+    private void Ok()
+    {
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

@@ -12,7 +12,7 @@
 
 @inject IWorkoutService _workoutService
 @inject IWorkoutTypeService _workoutTypeService
-@inject IDialogService _dialogService
+@inject IBdtDialogService _dialogService
 
 @if (Loading)
 {
@@ -102,8 +102,7 @@ else
 
     private async Task DeleteWorkout(WorkoutDto workoutDto)
     {
-        var dialogResponse = await _dialogService.ShowAsync<DeleteWorkoutDialog>("Delete Workout");
-        var deleteConfirmed = await dialogResponse.GetReturnValueAsync<bool>();
+        var deleteConfirmed = await _dialogService.DeleteWorkoutDialog();
         if (!deleteConfirmed)
             return;
 
@@ -115,7 +114,7 @@ else
         }
         else
         {
-            //await App.Current.MainPage.DisplayAlert("Oops", "Could not delete this workout, please try again.", "OK");
+            await _dialogService.ShowErrorDialog("Oops!", $"Could not delete this workout, please try again.");
         }
     }
 
@@ -267,7 +266,7 @@ else
         var respose = await _workoutService.GetUserWorkouts();
         if (!respose.IsSuccess)
         {
-            //await App.Current.MainPage.DisplayAlert("Oops", "We encountered an issue while attempting to find your workout history, please try again.", "OK");
+            await _dialogService.ShowErrorDialog("Oops!", $"We encountered an issue while attempting to find your workout history, please try again.");
         }
 
         Workouts = respose.Data.OrderByDescending(x => x.Date).ToList();

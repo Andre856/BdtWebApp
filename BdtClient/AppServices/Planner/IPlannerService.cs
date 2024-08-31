@@ -1,5 +1,5 @@
-﻿using BdtShared.Dtos.Planner;
-using BdtShared.Models.App;
+﻿using Bdt.Shared.Dtos.Planner;
+using Bdt.Shared.Models.App;
 
 namespace BdtClient.AppServices.Planner;
 

@@ -1,6 +1,6 @@
 ﻿using BdtClient.Shared.Dialogs;
-using BdtShared.Dtos.WorkoutType;
-using BdtShared.Models.Dialogs;
+using Bdt.Shared.Dtos.WorkoutType;
+using Bdt.Shared.Models.Dialogs;
 using MudBlazor;
 
 namespace BdtClient.AppServices.Dialog;

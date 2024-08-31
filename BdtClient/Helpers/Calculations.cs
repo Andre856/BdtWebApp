@@ -1,6 +1,6 @@
-﻿using BdtShared.Dtos.Planner;
-using BdtShared.Models.App;
-using BdtShared.Models.Charts;
+﻿using Bdt.Shared.Dtos.Planner;
+using Bdt.Shared.Models.App;
+using Bdt.Shared.Models.Charts;
 using Plugin.LocalNotification;
 
 namespace BdtClient.Helpers;

@@ -1,6 +1,6 @@
 ﻿using BdtClient.AppServices.GenericApi;
-using BdtShared.Dtos.BdtProduct;
-using BdtShared.Models.StripeModels;
+using Bdt.Shared.Dtos.BdtProduct;
+using Bdt.Shared.Models.StripeModels;
 
 namespace BdtClient.AppServices.Checkout;
 

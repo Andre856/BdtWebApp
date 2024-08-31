@@ -1,6 +1,6 @@
 ﻿using BdtClient.AppServices.GenericApi;
-using BdtShared.Dtos.WeekDay;
-using BdtShared.Models.App;
+using Bdt.Shared.Dtos.WeekDay;
+using Bdt.Shared.Models.App;
 
 namespace BdtClient.AppServices.Weekday;
 

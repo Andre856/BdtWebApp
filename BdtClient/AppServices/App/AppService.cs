@@ -1,8 +1,8 @@
 ﻿using BdtClient.AppServices.Claims;
 using BdtClient.Provider;
 using BdtClient.Provider.Token;
-using BdtShared.Dtos.Users;
-using BdtShared.Models.App;
+using Bdt.Shared.Dtos.Users;
+using Bdt.Shared.Models.App;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;

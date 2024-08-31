@@ -1,5 +1,5 @@
-﻿using BdtShared.Dtos.Users;
-using BdtShared.Models.App;
+﻿using Bdt.Shared.Dtos.Users;
+using Bdt.Shared.Models.App;
 
 namespace BdtClient.AppServices.App;
 

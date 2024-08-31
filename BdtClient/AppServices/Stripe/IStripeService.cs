@@ -1,7 +1,7 @@
 ﻿using BdtClient.AppServices.GenericApi;
-using BdtShared.Dtos.Stripe;
-using BdtShared.Models.App;
-using BdtShared.Models.StripeModels;
+using Bdt.Shared.Dtos.Stripe;
+using Bdt.Shared.Models.App;
+using Bdt.Shared.Models.StripeModels;
 
 namespace BdtClient.AppServices.Stripe;
 

@@ -1,5 +1,5 @@
-﻿using BdtShared.Dtos.Workouts;
-using BdtShared.Models.App;
+﻿using Bdt.Shared.Dtos.Workouts;
+using Bdt.Shared.Models.App;
 
 namespace BdtClient.AppServices.Workouts;
 

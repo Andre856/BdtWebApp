@@ -1,4 +1,4 @@
-﻿using BdtShared.Models.App;
+﻿using Bdt.Shared.Models.App;
 
 namespace BdtClient.AppServices.Session;
 public class SessionService : ISessionService

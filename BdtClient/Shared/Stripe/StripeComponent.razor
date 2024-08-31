@@ -1,7 +1,7 @@
 ﻿@using BdtClient.AppServices.Stripe;
-@using BdtShared.Models.StripeModels;
-@using BdtShared.Models.Country;
-@using BdtShared.Static
+@using Bdt.Shared.Models.StripeModels;
+@using Bdt.Shared.Models.Country;
+@using Bdt.Shared.Static
 
 @inject IJSRuntime _js;
 @inject IStripeService _stripeService;
@@ -199,7 +199,7 @@
     {
         if (_firstTime)
         {
-            StripePubKey = await _stripeService.GetPublicKey(Globals.Environment == BdtShared.Enums.EnvironmentEnums.Devevelopment);
+            StripePubKey = await _stripeService.GetPublicKey(Globals.Environment == Bdt.Shared.Enums.EnvironmentEnums.Devevelopment);
             if (StripePubKey.ToLower().Contains("error"))
             {
                 //await App.Current.MainPage.DisplayAlert("Oops", $"An error has occurred, please try again.", "OK");

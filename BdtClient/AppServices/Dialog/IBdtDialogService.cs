@@ -1,5 +1,5 @@
-﻿using BdtShared.Dtos.WorkoutType;
-using BdtShared.Models.Dialogs;
+﻿using Bdt.Shared.Dtos.WorkoutType;
+using Bdt.Shared.Models.Dialogs;
 
 namespace BdtClient.AppServices.Dialog;
 

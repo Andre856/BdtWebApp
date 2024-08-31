@@ -1,4 +1,4 @@
-﻿using BdtShared.Enums;
+﻿using Bdt.Shared.Enums;
 
 namespace BdtClient.Helpers;
 public class AppEnvironmentVarsHelper

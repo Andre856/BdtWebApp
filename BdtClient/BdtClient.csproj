@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BdtShared\BdtShared.csproj" />
+    <ProjectReference Include="..\Bdt.Shared\Bdt.Shared.csproj" />
   </ItemGroup>
 
 </Project>

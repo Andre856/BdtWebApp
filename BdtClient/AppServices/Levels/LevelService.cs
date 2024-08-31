@@ -1,7 +1,7 @@
 ﻿using BdtClient.AppServices.GenericApi;
-using BdtShared.Dtos.Levels;
-using BdtShared.Models.App;
-using BdtShared.Static;
+using Bdt.Shared.Dtos.Levels;
+using Bdt.Shared.Models.App;
+using Bdt.Shared.Static;
 using Newtonsoft.Json;
 
 namespace BdtClient.AppServices.Levels;

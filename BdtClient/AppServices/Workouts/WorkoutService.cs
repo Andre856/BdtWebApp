@@ -1,6 +1,6 @@
 ﻿using BdtClient.AppServices.GenericApi;
-using BdtShared.Dtos.Workouts;
-using BdtShared.Models.App;
+using Bdt.Shared.Dtos.Workouts;
+using Bdt.Shared.Models.App;
 using Newtonsoft.Json;
 using System.Text;
 

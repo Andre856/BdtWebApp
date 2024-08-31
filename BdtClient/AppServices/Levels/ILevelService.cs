@@ -1,6 +1,6 @@
 ﻿using BdtClient.AppServices.GenericApi;
-using BdtShared.Dtos.Levels;
-using BdtShared.Models.App;
+using Bdt.Shared.Dtos.Levels;
+using Bdt.Shared.Models.App;
 
 namespace BdtClient.AppServices.Levels;
 

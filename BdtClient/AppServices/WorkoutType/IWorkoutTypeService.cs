@@ -1,6 +1,6 @@
 ﻿using BdtClient.AppServices.GenericApi;
-using BdtShared.Dtos.WorkoutType;
-using BdtShared.Models.App;
+using Bdt.Shared.Dtos.WorkoutType;
+using Bdt.Shared.Models.App;
 
 namespace BdtClient.AppServices.WorkoutType;
 

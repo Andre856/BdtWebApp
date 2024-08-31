@@ -1,5 +1,5 @@
 ﻿using BdtClient.Provider.Token;
-using BdtShared.Models.App;
+using Bdt.Shared.Models.App;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

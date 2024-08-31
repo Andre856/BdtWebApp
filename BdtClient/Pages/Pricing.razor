@@ -3,7 +3,7 @@
 @using BdtClient.AppServices.App;
 @using BdtClient.AppServices.BdtProduct;
 @using BdtClient.AppServices.Checkout;
-@using BdtShared.Dtos.BdtProduct;
+@using Bdt.Shared.Dtos.BdtProduct;
 
 @inject IAppService _appService
 @inject ICheckoutService _checkoutService
@@ -81,7 +81,7 @@ else
 
     private void OnClickBtnBuyNowAsync(BdtProductDto bdtProductDto)
     {
-        if (Globals.Environment == BdtShared.Enums.EnvironmentEnums.Devevelopment)
+        if (Globals.Environment == Bdt.Shared.Enums.EnvironmentEnums.Devevelopment)
         {
             _navigation.NavigateTo($"/payment/{bdtProductDto.StripeTestApiId}");
         }

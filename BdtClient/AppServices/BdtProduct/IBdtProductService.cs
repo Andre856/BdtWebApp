@@ -1,6 +1,6 @@
 ﻿using BdtClient.AppServices.GenericApi;
-using BdtShared.Dtos.BdtProduct;
-using BdtShared.Models.App;
+using Bdt.Shared.Dtos.BdtProduct;
+using Bdt.Shared.Models.App;
 
 namespace BdtClient.AppServices.BdtProduct;
 

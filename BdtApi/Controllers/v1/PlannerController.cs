@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using BDtApi.ApiServices.Generic;
-using BDtApi.ApiServices.Planner;
+using BdtApi.Application.Services.Generic;
+using BdtApi.Application.Services.Planner;
+using BdtApi.Domain.Entities;
 using BdtShared.Dtos.Planner;
-using BdtShared.Entities;
 using BdtShared.Models.App;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using BDtApi.ApiServices.Generic;
-using BDtApi.ApiServices.Workout;
-using BDtApi.ApiServices.WorkoutValues;
+using BdtApi.Application.Services.Generic;
+using BdtApi.Application.Services.Workout;
+using BdtApi.Application.Services.WorkoutValues;
+using BdtApi.Domain.Entities;
 using BdtShared.Dtos.Workouts;
 using BdtShared.Dtos.WorkoutValues;
-using BdtShared.Entities;
 using BdtShared.Models.App;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

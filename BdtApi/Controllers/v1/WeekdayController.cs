@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using BDtApi.ApiServices.Weekdays;
+using BdtApi.Application.Services.Weekdays;
+using BdtApi.Domain.Entities;
 using BdtShared.Dtos.WeekDay;
-using BdtShared.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BdtApi.Controllers.v1

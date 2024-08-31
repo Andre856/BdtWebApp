@@ -11,7 +11,7 @@ public class FilterModel
     public int? LogicalFilterOperator { get; set; }
 }
 
-public enum PeFilterOperator
+public enum BdtFilterOperator
 {
     Equals,
     NotEquals,
@@ -29,7 +29,7 @@ public enum PeFilterOperator
     IsNotEmpty
 }
 
-public enum PeLogicalFilterOperator
+public enum BdtLogicalFilterOperator
 {
     And,
     Or

@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
-using BdtApi.Context;
-using BDtApi.ApiServices.Email;
+using BdtApi.Application.Services.Email;
+using BdtApi.Domain.Entities;
+using BdtApi.Infrastructure.Context;
 using BdtShared.Dtos.Emails;
 using BdtShared.Dtos.Users;
-using BdtShared.Entities;
-using BdtShared.Enums;
 using BdtShared.Models.App;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting.Server;

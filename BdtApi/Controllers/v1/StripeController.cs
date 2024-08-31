@@ -1,4 +1,4 @@
-﻿using BdtApi.Managers;
+﻿using BdtApi.Infrastructure.Managers;
 using BdtShared.Dtos.Stripe;
 using BdtShared.Models.App;
 using BdtShared.Models.StripeModels;

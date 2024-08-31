@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using BDtApi.ApiServices.Level;
+using BdtApi.Application.Services.Level;
+using BdtApi.Domain.Entities;
 using BdtShared.Dtos.Levels;
-using BdtShared.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BdtApi.Controllers.v1;

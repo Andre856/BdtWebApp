@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using BDtApi.ApiServices.WorkoutType;
+using BdtApi.Application.Services.WorkoutType;
+using BdtApi.Domain.Entities;
 using BdtShared.Dtos.WorkoutType;
-using BdtShared.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BdtApi.Controllers.v1;

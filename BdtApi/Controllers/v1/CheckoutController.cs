@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
+using BdtApi.Domain.Entities;
 using BdtShared.Dtos.BdtProduct;
-using BdtShared.Entities;
 using BdtShared.Models.StripeModels;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using Stripe;
 using Stripe.Checkout;
 

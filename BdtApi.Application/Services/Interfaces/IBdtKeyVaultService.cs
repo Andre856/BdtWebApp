@@ -1,4 +1,4 @@
-﻿namespace BdtApi.Application.Services.BdtKeyVault;
+﻿namespace BdtApi.Application.Services.Interfaces;
 
 public interface IBdtKeyVaultService
 {

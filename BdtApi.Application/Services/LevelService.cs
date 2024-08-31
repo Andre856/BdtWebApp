@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
-using BdtApi.Application.Services.Generic;
+using BdtApi.Application.Services.Interfaces;
 using BdtApi.Domain.Entities;
-using BdtApi.Infrastructure.Repository;
+using BdtApi.Infrastructure.Repositories.Interfaces;
 using BdtShared.Dtos.Levels;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace BdtApi.Application.Services.Level
+namespace BdtApi.Application.Services
 {
     public class LevelService : GenericService<int, LevelEntity, LevelDto>, ILevelService
     {

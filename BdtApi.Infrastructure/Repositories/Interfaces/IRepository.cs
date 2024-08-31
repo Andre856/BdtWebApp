@@ -2,7 +2,7 @@
 using BdtShared.Enums;
 using System.Linq.Expressions;
 
-namespace BdtApi.Infrastructure.Repository;
+namespace BdtApi.Infrastructure.Repositories.Interfaces;
 
 public interface IReadRepository<TId, TEntity>
     where TEntity : class, IEntity<TId>

@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using BdtApi.Application.Services.Generic;
-using BdtApi.Application.Services.Workout;
-using BdtApi.Application.Services.WorkoutValues;
+using BdtApi.Application.Services.Interfaces;
 using BdtApi.Domain.Entities;
 using BdtShared.Dtos.Workouts;
 using BdtShared.Dtos.WorkoutValues;

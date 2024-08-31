@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
-using BdtApi.Application.Services.Generic;
+using BdtApi.Application.Services.Interfaces;
 using BdtApi.Domain.Entities;
-using BdtApi.Infrastructure.Repository;
+using BdtApi.Infrastructure.Repositories.Interfaces;
 using BdtShared.Dtos.Planner;
 using System.Linq.Expressions;
 
-namespace BdtApi.Application.Services.Planner;
+namespace BdtApi.Application.Services;
 
 public class PlannerService : GenericService<Guid, PlannerEntity, PlannerDto, UpdatePlannerDto, CreatePlannerDto, DeletePlannerDto>, IPlannerService
 {

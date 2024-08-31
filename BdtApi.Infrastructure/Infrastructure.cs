@@ -3,19 +3,55 @@ using BdtApi.Infrastructure.Context;
 using BdtApi.Infrastructure.CustomClaims;
 using BdtApi.Infrastructure.Managers;
 using BdtApi.Infrastructure.Mapper;
-using BdtApi.Infrastructure.Repository;
+using BdtApi.Infrastructure.Repositories;
+using BdtApi.Infrastructure.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
 namespace BdtApi.Infrastructure;
 
-public static class DependencyInjection
+public static class Infrastructure
 {
+    public static void SetEnvironmentVariables(this IConfiguration config)
+    {
+        SetDatabaseStrings(config.GetSection("ProdDbConnectionString").Value,
+            config.GetSection("DevDbConnectionString").Value,
+            config.GetSection("TestDbConnectionString").Value);
+    }
+
+    private static void SetDatabaseStrings(string? prodConnectionString, string? devConnectionString, string? testConnectionString)
+    {
+        string? connectionString = null;
+        string? environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+        switch (environment)
+        {
+            case null:
+                connectionString = prodConnectionString;
+                break;
+            case "Development":
+                connectionString = devConnectionString;
+                break;
+            case "Testing":
+                connectionString = testConnectionString;
+                break;
+            case "Staging":
+                connectionString = prodConnectionString;
+                break;
+        }
+
+        if (connectionString is null)
+            throw new Exception("Could not find connection string.");
+
+        Environment.SetEnvironmentVariable("CONNECTION_STRING", connectionString);
+    }
+
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfigurationManager config)
     {
         services.AddMemoryCache();
@@ -27,6 +63,37 @@ public static class DependencyInjection
         services.AddScoped(typeof(ICreateRepository<,>), typeof(CreateRepository<,>));
         services.AddScoped(typeof(IUpdateRepository<,>), typeof(UpdateRepository<,>));
         services.AddScoped(typeof(IDeleteRepository<,>), typeof(DeleteRepository<,>));
+
+        services.AddSwaggerGen(swagger =>
+        {
+            swagger.SwaggerDoc("v1",
+                new OpenApiInfo
+                {
+                    Title = "BdtApi",
+                    Version = "v1",
+                    Description = "Busy Dad Training API"
+                });
+
+            var securitySchema = new OpenApiSecurityScheme
+            {
+                Description = "Authorization header using Bearer scheme. Example: 'Authorization: Bearer {token}'",
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
+                Scheme = "Bearer",
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            };
+
+            swagger.AddSecurityDefinition(securitySchema.Reference.Id, securitySchema);
+            swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                { securitySchema, Array.Empty<string>() }
+            });
+        });
 
         services.AddIdentity<UserEntity, IdentityRole>()
             .AddEntityFrameworkStores<BdtDbContext>()

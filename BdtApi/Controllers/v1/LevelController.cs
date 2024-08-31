@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using BdtApi.Application.Services.Level;
+using BdtApi.Application.Services.Interfaces;
 using BdtApi.Domain.Entities;
 using BdtShared.Dtos.Levels;
 using Microsoft.AspNetCore.Mvc;

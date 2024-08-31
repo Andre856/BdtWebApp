@@ -1,8 +1,9 @@
 ﻿using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
+using BdtApi.Application.Services.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace BdtApi.Application.Services.BdtKeyVault;
+namespace BdtApi.Application.Services;
 
 public class BdtKeyVaultService : IBdtKeyVaultService
 {

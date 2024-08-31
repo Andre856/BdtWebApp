@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using BdtApi.Application.Services.Generic;
+using BdtApi.Application.Services.Interfaces;
 using BdtApi.Domain.Entities;
-using BdtApi.Infrastructure.Repository;
+using BdtApi.Infrastructure.Repositories.Interfaces;
 using BdtShared.Dtos.WorkoutValues;
 
-namespace BdtApi.Application.Services.WorkoutValues;
+namespace BdtApi.Application.Services;
 
 public class WorkoutValuesService : GenericService<Guid, WorkoutValuesEntity, WorkoutValuesDto, UpdateWorkoutValuesDto, CreateWorkoutValuesDto, DeleteWorkoutValuesDto>, IWorkoutValuesService
 {

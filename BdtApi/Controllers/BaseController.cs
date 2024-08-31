@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using BdtApi.Application.Services.Generic;
+using BdtApi.Application.Services.Interfaces;
 using BdtApi.Domain.Entities;
 using BdtApi.Domain.Helpers;
 using BdtShared.Dtos;

@@ -1,18 +1,10 @@
-﻿using BdtApi.Application.Services.BdtKeyVault;
-using BdtApi.Application.Services.BdtProduct;
-using BdtApi.Application.Services.Email;
-using BdtApi.Application.Services.Generic;
-using BdtApi.Application.Services.Level;
-using BdtApi.Application.Services.Planner;
-using BdtApi.Application.Services.Weekdays;
-using BdtApi.Application.Services.Workout;
-using BdtApi.Application.Services.WorkoutType;
-using BdtApi.Application.Services.WorkoutValues;
+﻿using BdtApi.Application.Services;
+using BdtApi.Application.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BdtApi.Application;
 
-public static class DependencyInjection
+public static class Application
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {

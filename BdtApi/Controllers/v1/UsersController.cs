@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using BdtApi.Application.Services.Email;
+using BdtApi.Application.Services.Interfaces;
 using BdtApi.Domain.Entities;
 using BdtApi.Infrastructure.Context;
 using BdtShared.Dtos.Emails;

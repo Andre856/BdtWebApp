@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using BdtApi.Application.Services.BdtProduct;
+using BdtApi.Application.Services.Interfaces;
 using BdtShared.Dtos.BdtProduct;
 using BdtShared.Models.App;
 using Microsoft.AspNetCore.Authorization;

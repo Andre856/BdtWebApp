@@ -1,11 +1,12 @@
-﻿using BdtShared.Dtos.Emails;
+﻿using BdtApi.Application.Services.Interfaces;
+using BdtShared.Dtos.Emails;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
 using MimeKit.Text;
 
-namespace BdtApi.Application.Services.Email;
+namespace BdtApi.Application.Services;
 
 public class EmailService : IEmailService
 {

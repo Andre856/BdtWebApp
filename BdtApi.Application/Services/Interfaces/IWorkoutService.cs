@@ -1,8 +1,7 @@
-﻿using BdtApi.Application.Services.Generic;
-using BdtApi.Domain.Entities;
+﻿using BdtApi.Domain.Entities;
 using BdtShared.Dtos.Workouts;
 
-namespace BdtApi.Application.Services.Workout;
+namespace BdtApi.Application.Services.Interfaces;
 
 public interface IWorkoutService : IGenericService<Guid, WorkoutEntity, WorkoutDto>
 {

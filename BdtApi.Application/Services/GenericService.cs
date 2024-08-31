@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
+using BdtApi.Application.Services.Interfaces;
 using BdtApi.Domain.Entities;
-using BdtApi.Infrastructure.Repository;
+using BdtApi.Infrastructure.Repositories.Interfaces;
 using BdtShared.Dtos;
 using BdtShared.Enums;
 using System.Linq.Expressions;
 
-namespace BdtApi.Application.Services.Generic;
+namespace BdtApi.Application.Services;
 
 public class GenericService<TId, TEntity, TDto> : IGenericService<TId, TEntity, TDto>
     where TEntity : class, IEntity<TId>

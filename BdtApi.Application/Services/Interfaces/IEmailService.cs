@@ -1,6 +1,6 @@
 ﻿using BdtShared.Dtos.Emails;
 
-namespace BdtApi.Application.Services.Email;
+namespace BdtApi.Application.Services.Interfaces;
 
 public interface IEmailService
 {

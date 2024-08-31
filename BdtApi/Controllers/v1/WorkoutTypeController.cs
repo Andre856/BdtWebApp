@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using BdtApi.Application.Services.WorkoutType;
+using BdtApi.Application.Services.Interfaces;
 using BdtApi.Domain.Entities;
 using BdtShared.Dtos.WorkoutType;
 using Microsoft.AspNetCore.Mvc;

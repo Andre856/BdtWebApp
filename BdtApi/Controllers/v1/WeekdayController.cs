@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using BdtApi.Application.Services.Weekdays;
+using BdtApi.Application.Services.Interfaces;
 using BdtApi.Domain.Entities;
 using BdtShared.Dtos.WeekDay;
 using Microsoft.AspNetCore.Mvc;

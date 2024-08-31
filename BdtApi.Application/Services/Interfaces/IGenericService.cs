@@ -3,7 +3,7 @@ using BdtShared.Dtos;
 using BdtShared.Enums;
 using System.Linq.Expressions;
 
-namespace BdtApi.Application.Services.Generic;
+namespace BdtApi.Application.Services.Interfaces;
 
 public interface IGenericService<TId, TEntity, TDto>
     where TEntity : class, IEntity<TId>

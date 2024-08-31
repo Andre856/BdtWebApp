@@ -1,12 +1,13 @@
 ﻿using AutoMapper;
 using BdtApi.Domain.Entities;
 using BdtApi.Infrastructure.Context;
+using BdtApi.Infrastructure.Repositories.Interfaces;
 using BdtShared.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace BdtApi.Infrastructure.Repository;
+namespace BdtApi.Infrastructure.Repositories;
 
 public class ReadRepository<TId, TEntity> : IReadRepository<TId, TEntity>
     where TEntity : class, IEntity<TId>

@@ -14,7 +14,7 @@
 @inject IWorkoutTypeService _workoutTypeService
 @inject IBdtDialogService _dialogService
 
-@if (Loading)
+@if (loading)
 {
     <PageLoading />
 }
@@ -23,19 +23,19 @@ else
     <MudContainer Class="mt-4 px-2 chart-container" MaxWidth="MaxWidth.ExtraExtraLarge">
 
         <MudSelect FullWidth=false Required=true Margin="Margin.Normal" T="string" Label="View by"
-                   Variant="MudBlazor.Variant.Filled" @bind-Value="@SelectedViewByValue" SelectedValuesChanged="@ViewByChanged">
-            @foreach (var viewBy in ViewByList)
+                   Variant="MudBlazor.Variant.Filled" @bind-Value="@selectedViewByValue" SelectedValuesChanged="@ViewByChanged">
+            @foreach (var viewBy in viewByList)
             {
                 <MudSelectItem Value=viewBy />
             }
         </MudSelect>
 
-        @if (IsWorkouts){
-            <MudDataGrid Items="@Workouts">
+        @if (isWorkouts){
+            <MudDataGrid Items="@workouts">
                 <Columns>
                     <PropertyColumn Property="x => x.Date.ToShortDateString()" Title="Date" />
                     <PropertyColumn Property="x => x.WorkoutTime" Title="Duration (mins)" />
-                    @foreach(var workoutType in WorkoutTypes)
+                    @foreach(var workoutType in workoutTypes)
                     {
                         <TemplateColumn Title="@workoutType.Name">
                             <CellTemplate>
@@ -61,12 +61,12 @@ else
         }
         else
         {
-            <MudDataGrid Items="@WorkoutSummary">
+            <MudDataGrid Items="@workoutSummary">
                 <Columns>
                     <PropertyColumn Property="x => x.Start.ToShortDateString()" Title="From" />
                     <PropertyColumn Property="x => x.End.ToShortDateString()" Title="To" />
                     <PropertyColumn Property="x => x.TotalWorkoutTime" Title="Total minutes" />
-                    @foreach(var workoutType in WorkoutTypes)
+                    @foreach(var workoutType in workoutTypes)
                     {
                         <TemplateColumn Title="@workoutType.Name">
                             <CellTemplate>
@@ -90,15 +90,15 @@ else
 }
 
 @code {
-    private bool Loading = true;
-    private bool IsWorkouts = true;
-    private string SelectedViewByValue = "Workout";
+    private bool loading = true;
+    private bool isWorkouts = true;
+    private string selectedViewByValue = "Workout";
 
-    private List<string> ViewByList = new List<string> { "Workout", "Week", "Month", "Year" };
+    private List<string> viewByList = [ "Workout", "Week", "Month", "Year" ];
 
-    private List<WorkoutDto> Workouts;
-    private List<WorkoutSummary> WorkoutSummary;
-    private List<WorkoutTypeDto> WorkoutTypes;
+    private List<WorkoutDto> workouts = [];
+    private List<WorkoutSummary> workoutSummary = [];
+    private List<WorkoutTypeDto> workoutTypes = [];
 
     private async Task DeleteWorkout(WorkoutDto workoutDto)
     {
@@ -110,7 +110,7 @@ else
 
         if (response.IsSuccess)
         {
-            Workouts.Remove(workoutDto);
+            workouts.Remove(workoutDto);
         }
         else
         {
@@ -120,22 +120,22 @@ else
 
     private void ViewByChanged()
     {
-        switch (SelectedViewByValue)
+        switch (selectedViewByValue)
         {
             case "Week":
-                WorkoutSummary = SummarizeWeek(Workouts);
-                IsWorkouts = false;
+                workoutSummary = SummarizeWeek(workouts);
+                isWorkouts = false;
                 break;
             case "Month":
-                WorkoutSummary = SummarizeMonth(Workouts);
-                IsWorkouts = false;
+                workoutSummary = SummarizeMonth(workouts);
+                isWorkouts = false;
                 break;
             case "Year":
-                WorkoutSummary = SummarizeYear(Workouts);
-                IsWorkouts = false;
+                workoutSummary = SummarizeYear(workouts);
+                isWorkouts = false;
                 break;
             default:
-                IsWorkouts = true;
+                isWorkouts = true;
                 break;
         }
     }
@@ -261,7 +261,7 @@ else
 
     protected override async void OnInitialized()
     {
-        WorkoutTypes = (await _workoutTypeService.GetAllWorkoutTypes()).Data.Where(x => !x.Name.Equals("Accessory")).ToList();
+        workoutTypes = (await _workoutTypeService.GetAllWorkoutTypes()).Data.Where(x => !x.Name.Equals("Accessory")).ToList();
 
         var respose = await _workoutService.GetUserWorkouts();
         if (!respose.IsSuccess)
@@ -269,8 +269,8 @@ else
             await _dialogService.ShowErrorDialog("Oops!", $"We encountered an issue while attempting to find your workout history, please try again.");
         }
 
-        Workouts = respose.Data.OrderByDescending(x => x.Date).ToList();
-        Loading = false;
+        workouts = respose.Data.OrderByDescending(x => x.Date).ToList();
+        loading = false;
         StateHasChanged();
     }
 }

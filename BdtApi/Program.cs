@@ -26,7 +26,9 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var kvUrl = Environment.GetEnvironmentVariable("AZURE_KEY_VAULT_URL") ?? throw new Exception("Could not find key vault url.");
+var kvUrl = Environment.GetEnvironmentVariable("AZURE_KEY_VAULT_URL") 
+    ?? throw new Exception("Could not find key vault url.");
+
 builder.Configuration.AddAzureKeyVault(new Uri(kvUrl), new DefaultAzureCredential());
 
 AppEnvironmentVarsHelper.SetEnvironmentVars(
@@ -34,6 +36,15 @@ AppEnvironmentVarsHelper.SetEnvironmentVars(
     builder.Configuration.GetSection("DevDbConnectionString").Value,
     builder.Configuration.GetSection("TestDbConnectionString").Value);
 
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<StripeManager>();
+builder.Services.AddScoped(typeof(IReadRepository<,>), typeof(ReadRepository<,>));
+builder.Services.AddScoped(typeof(ICreateRepository<,>), typeof(CreateRepository<,>));
+builder.Services.AddScoped(typeof(IUpdateRepository<,>), typeof(UpdateRepository<,>));
+builder.Services.AddScoped(typeof(IDeleteRepository<,>), typeof(DeleteRepository<,>));
 builder.Services.AddScoped(typeof(IGenericService<,,>), typeof(GenericService<,,>));
 builder.Services.AddScoped(typeof(IGenericService<,,,>), typeof(GenericService<,,,>));
 builder.Services.AddScoped(typeof(IGenericService<,,,,>), typeof(GenericService<,,,,>));
@@ -47,16 +58,6 @@ builder.Services.AddScoped<IWorkoutTypeService, WorkoutTypeService>();
 builder.Services.AddScoped<IBdtProductService, BdtProductService>();
 builder.Services.AddScoped<IBdtKeyVaultService, BdtKeyVaultService>();
 builder.Services.AddScoped<IWorkoutValuesService, WorkoutValuesService>();
-
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddMemoryCache();
-builder.Services.AddScoped<StripeManager>();
-builder.Services.AddScoped(typeof(IReadRepository<,>), typeof(ReadRepository<,>));
-builder.Services.AddScoped(typeof(ICreateRepository<,>), typeof(CreateRepository<,>));
-builder.Services.AddScoped(typeof(IUpdateRepository<,>), typeof(UpdateRepository<,>));
-builder.Services.AddScoped(typeof(IDeleteRepository<,>), typeof(DeleteRepository<,>));
 
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
@@ -146,19 +147,6 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-
-    var provider = app.Services.GetService<IApiVersionDescriptionProvider>();
-    app.UseSwaggerUI(options =>
-    {
-        foreach (var description in provider.ApiVersionDescriptions)
-        {
-            options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName);
-        }
-    });
-}
-else
 {
     app.UseSwagger();
 

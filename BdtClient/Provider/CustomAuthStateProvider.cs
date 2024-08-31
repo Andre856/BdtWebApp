@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace BdtClient.Handller;
+namespace BdtClient.Provider;
 
 public class CustomAuthStateProvider : AuthenticationStateProvider
 {

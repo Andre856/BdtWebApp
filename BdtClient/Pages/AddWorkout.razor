@@ -27,7 +27,7 @@ else
         <MudContainer Class="pt-8" MaxWidth="MaxWidth.ExtraExtraLarge">
 
             <MudText Class="mb-5" Align="MudBlazor.Align.Center" Typo="Typo.h6">WORKOUT COMPLETE!</MudText>
-            <MudDatePicker Class="mb-3" Variant="MudBlazor.Variant.Filled" @bind-Date="WorkoutDate" />
+            <MudDatePicker Class="mb-3" Variant="MudBlazor.Variant.Filled" @bind-Date="workoutDate" />
             <MudSelect Class="mb-3" T="string" Label="Workout" Variant="MudBlazor.Variant.Filled" AnchorOrigin="Origin.BottomCenter" SelectedValuesChanged="@BurpeeTypeSelected" @bind-Value="selectedBurpeeType">
                 @foreach (var workoutType in workoutTypes)
                 {
@@ -37,10 +37,10 @@ else
 
             @if (isAccessoryWorkout)
             {
-                @for (int i = 0; i < AccessoryWorkouts.Count; i++)
+                @for (int i = 0; i < accessoryWorkouts.Count; i++)
                 {
-                    var mudSelect = AccessoryWorkouts[i].Item1;
-                    var mudNumeric = AccessoryWorkouts[i].Item2;
+                    var mudSelect = accessoryWorkouts[i].Item1;
+                    var mudNumeric = accessoryWorkouts[i].Item2;
 
                     <MudGrid>
                         <MudItem Style="width: 74%">
@@ -68,18 +68,18 @@ else
             }
             else
             {
-                <MudNumericField Class="mb-3" @onfocus="@(() => NumberOfBurpeesField.SelectAsync())" T="int" @bind-Value="numberOfBurpees" Label="Number of Burpees" Variant="MudBlazor.Variant.Filled" Min="1" @ref="NumberOfBurpeesField" />
+                <MudNumericField Class="mb-3" @onfocus="@(() => numberOfBurpeesField.SelectAsync())" T="int" @bind-Value="numberOfBurpees" Label="Number of Burpees" Variant="MudBlazor.Variant.Filled" Min="1" @ref="numberOfBurpeesField" />
             }
 
             <Blafettis elementCount="100" stagger="20" spread="90" duration="3000" @ref="blafettis" />
 
-            <MudNumericField Class="mb-6" @onfocus="@(() => WorkoutDurationField.SelectAsync())" T="decimal" @bind-Value="WorkoutDuration" Label="Workout Time (minutes)" Variant="MudBlazor.Variant.Filled" Min="1" @ref="WorkoutDurationField" />
+            <MudNumericField Class="mb-6" @onfocus="@(() => workoutDurationField.SelectAsync())" T="decimal" @bind-Value="WorkoutDuration" Label="Workout Time (minutes)" Variant="MudBlazor.Variant.Filled" Min="1" @ref="workoutDurationField" />
             <MudTextField Class="mb-3" T="string" Label="How was the workout?" Variant="MudBlazor.Variant.Outlined" @bind-Value="@workoutComment" Lines="3" MaxLength="275" />
 
             <MudGrid Class="justify-end mt-5 mb-5" Style="max-width: 100%">
                 <MudButton Style="margin-left: 30px" Color="@MudBlazor.Color.Warning" Href="/dashboard">Do this later.</MudButton>
                 <MudSpacer />
-                <MudIconButton Disabled="SaveDisabled" Icon="@Icons.Material.Filled.Save" Color="@MudBlazor.Color.Success" OnClick="SaveWorkout" />
+                <MudIconButton Disabled="saveDisabled" Icon="@Icons.Material.Filled.Save" Color="@MudBlazor.Color.Success" OnClick="SaveWorkout" />
             </MudGrid>
 
         </MudContainer>
@@ -89,23 +89,23 @@ else
 @code {
     [Parameter] public decimal WorkoutDuration { get; set; }
 
-    private bool SaveDisabled = false;
-    private IEnumerable<WorkoutTypeDto> workoutTypes;
-    private IEnumerable<WorkoutTypeDto> accessoryWorkoutTypes;
-    private IEnumerable<LevelDto> Levels;
-    private DateTime? WorkoutDate = DateTime.Now;
-    private string workoutComment;
-    private string selectedBurpeeType;
+    private bool saveDisabled = false;
+    private IEnumerable<WorkoutTypeDto> workoutTypes = [];
+    private IEnumerable<WorkoutTypeDto> accessoryWorkoutTypes = [];
+    private IEnumerable<LevelDto> Levels = [];
+    private DateTime? workoutDate = DateTime.Now;
+    private string workoutComment = string.Empty;
+    private string selectedBurpeeType = string.Empty;
     private int numberOfBurpees;
     private bool loading = true;
     private bool isAccessoryWorkout = false;
 
-    private List<(MudSelect<string>, MudNumericField<int>)> AccessoryWorkouts = new() { (new MudSelect<string>(), new MudNumericField<int>()) };
+    private List<(MudSelect<string>, MudNumericField<int>)> accessoryWorkouts = [(new MudSelect<string>(), new MudNumericField<int>())];
 
-    private MudNumericField<int> NumberOfBurpeesField;
-    private MudNumericField<decimal> WorkoutDurationField;
+    private MudNumericField<int> numberOfBurpeesField = default!;
+    private MudNumericField<decimal> workoutDurationField = default!;
 
-    protected Blafettis blafettis;
+    protected Blafettis blafettis = default!;
 
     private void Confetti()
     {
@@ -121,17 +121,17 @@ else
     {
         var mudSelect = new MudSelect<string>();
         var mudNumeric = new MudNumericField<int>();
-        AccessoryWorkouts.Add((mudSelect, mudNumeric));
+        accessoryWorkouts.Add((mudSelect, mudNumeric));
     }
 
     private void RemoveAccessory()
     {
-        AccessoryWorkouts.Remove(AccessoryWorkouts.Last());
+        accessoryWorkouts.Remove(accessoryWorkouts.Last());
     }
 
     private async Task SaveWorkout()
     {
-        SaveDisabled = true;
+        saveDisabled = true;
 
         if (WorkoutDuration == 20)
         {
@@ -160,7 +160,7 @@ else
         var workoutValuesDto = new List<CreateWorkoutValuesDto>();
         if (selectedBurpeeType.Equals("Accessory"))
         {
-            foreach (var accessoryWorkout in AccessoryWorkouts)
+            foreach (var accessoryWorkout in accessoryWorkouts)
             {
                 workoutValuesDto.Add(new CreateWorkoutValuesDto
                     {
@@ -181,7 +181,7 @@ else
 
         var createWorkoutDto = new CreateWorkoutDto
         {
-            Date = (DateTime)WorkoutDate,
+            Date = (DateTime)workoutDate,
             WorkoutTime = WorkoutDuration,
             Comment = workoutComment,
             WorkoutTypeId = workoutTypes.FirstOrDefault(x => x.Name.Equals(selectedBurpeeType)).Id,

@@ -14,6 +14,7 @@ using BdtClient.AppServices.Weekday;
 using BdtClient.AppServices.Workouts;
 using BdtClient.AppServices.WorkoutType;
 using BdtClient.Handller;
+using BdtClient.Provider;
 using BdtClient.Provider.Token;
 using Blazored.Toast;
 using Microsoft.AspNetCore.Components.Authorization;

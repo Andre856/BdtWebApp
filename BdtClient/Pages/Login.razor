@@ -5,7 +5,7 @@
 @using System.IdentityModel.Tokens.Jwt;
 @using System.Security.Claims;
 @using BdtClient.AppServices.Claims
-@using BdtClient.Handller
+@using BdtClient.Provider
 @using BdtShared.Models.App;
 @using BdtClient.AppServices.Theme;
 @using BdtClient.Shared.Dialogs;
@@ -60,7 +60,7 @@
 
 @code {
     private bool Success;
-    private string[] Errors = { };
+    private string[] Errors = [];
     private string Password;
     private string Email;
     private MudForm Form;

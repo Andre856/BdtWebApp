@@ -1,5 +1,5 @@
 ﻿using BdtClient.AppServices.Claims;
-using BdtClient.Handller;
+using BdtClient.Provider;
 using BdtClient.Provider.Token;
 using BdtShared.Dtos.Users;
 using BdtShared.Models.App;

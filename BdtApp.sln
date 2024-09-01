@@ -7,8 +7,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BdtClient", "BdtClient\BdtClient.csproj", "{6D4C17C4-ED64-4AFA-9E43-716FAAA50169}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bdt.Api", "Bdt.Api\Bdt.Api.csproj", "{B707581A-284C-446E-B840-E9938B3DB8A1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bdt.Api.Application", "Bdt.Api.Application\Bdt.Api.Application.csproj", "{3CEE0C2E-5F44-4B00-B8EA-DB59E2C19886}"
@@ -19,16 +17,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bdt.Api.Infrastructure", "B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bdt.Shared", "Bdt.Shared\Bdt.Shared.csproj", "{2BDD5E29-4010-4D00-B870-268F094701F0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bdt.Client", "Bdt.Client\Bdt.Client.csproj", "{49BD427C-CA42-423A-949C-E0ECA3FB7108}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6D4C17C4-ED64-4AFA-9E43-716FAAA50169}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6D4C17C4-ED64-4AFA-9E43-716FAAA50169}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6D4C17C4-ED64-4AFA-9E43-716FAAA50169}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6D4C17C4-ED64-4AFA-9E43-716FAAA50169}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B707581A-284C-446E-B840-E9938B3DB8A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B707581A-284C-446E-B840-E9938B3DB8A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B707581A-284C-446E-B840-E9938B3DB8A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -49,6 +45,10 @@ Global
 		{2BDD5E29-4010-4D00-B870-268F094701F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BDD5E29-4010-4D00-B870-268F094701F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BDD5E29-4010-4D00-B870-268F094701F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49BD427C-CA42-423A-949C-E0ECA3FB7108}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49BD427C-CA42-423A-949C-E0ECA3FB7108}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49BD427C-CA42-423A-949C-E0ECA3FB7108}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49BD427C-CA42-423A-949C-E0ECA3FB7108}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

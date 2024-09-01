@@ -1,6 +1,4 @@
-﻿using Bdt.Shared.Dtos;
-
-namespace Bdt.Shared.Dtos.WeekDay;
+﻿namespace Bdt.Shared.Dtos.WeekDay;
 
 public class WeekdayDto : IBaseDto<int>
 {

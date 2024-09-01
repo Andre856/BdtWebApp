@@ -1,6 +1,4 @@
-﻿using Bdt.Shared.Dtos;
-
-namespace Bdt.Shared.Dtos.WorkoutValues;
+﻿namespace Bdt.Shared.Dtos.WorkoutValues;
 
 public class UpdateWorkoutValuesDto : IBaseDto<Guid>
 {

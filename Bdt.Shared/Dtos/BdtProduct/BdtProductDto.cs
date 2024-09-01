@@ -1,6 +1,4 @@
-﻿using Bdt.Shared.Dtos;
-
-namespace Bdt.Shared.Dtos.BdtProduct;
+﻿namespace Bdt.Shared.Dtos.BdtProduct;
 
 public class BdtProductDto : IBaseDto<string>
 {

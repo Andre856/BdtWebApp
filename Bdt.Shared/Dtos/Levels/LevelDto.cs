@@ -1,6 +1,4 @@
-﻿using Bdt.Shared.Dtos;
-
-namespace Bdt.Shared.Dtos.Levels;
+﻿namespace Bdt.Shared.Dtos.Levels;
 
 public class LevelDto : IBaseDto<int>
 {

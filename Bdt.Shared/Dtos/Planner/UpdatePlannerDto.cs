@@ -1,6 +1,4 @@
-﻿using Bdt.Shared.Dtos;
-
-namespace Bdt.Shared.Dtos.Planner;
+﻿namespace Bdt.Shared.Dtos.Planner;
 
 public class UpdatePlannerDto : IBaseDto<Guid>
 {

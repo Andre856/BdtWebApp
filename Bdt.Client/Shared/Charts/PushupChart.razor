@@ -1,0 +1,205 @@
+﻿@using Bdt.Client.AppServices.Claims
+@using Bdt.Client.Helpers;
+@using Bdt.Client.Themes
+@using Bdt.Shared.Models.Charts;
+@using Bdt.Client.AppServices.Theme
+@using Bdt.Shared.Dtos.WorkoutValues;
+@using Bdt.Shared.Dtos.Workouts;
+@using Bdt.Shared.Models.Workout;
+
+@inject BdtThemeService _themeService
+@inject IClaimService _claimService
+@implements IDisposable
+
+<style>
+    .rz-tick {
+        font-size: 0.5rem;
+    }
+
+    div.rz-chart.rz-scheme-pastel svg {
+        height: 100% !important;
+    }
+
+    .rz-legend-item-text {
+        font-size: 0.5rem !important;
+    }
+</style>
+
+<MudPaper Style="border-radius:20px;" Class="mb-5 mud-elevation-2" Outlined="true">
+    <MudContainer Class="mt-5 px-1 chart" MaxWidth="MaxWidth.ExtraExtraLarge">
+        <MudContainer Style="height: 230px" Class="mt-0 px-0" MaxWidth="MaxWidth.ExtraExtraLarge">
+            <MudText Typo="Typo.body2" Align="MudBlazor.Align.Center">@Title</MudText>
+            <MudText Style="font-size:10px" Typo="Typo.body2" Align="MudBlazor.Align.Center">Personal Best: @PersonalBest</MudText>
+            <RadzenChart Style="height: 185px; margin: 0 auto;">
+
+                <RadzenColumnSeries StrokeWidth="1" 
+                                    Visible="@ShowData" 
+                                    Data="@ChartData" 
+                                    CategoryProperty="xAxis" 
+                                    Title="Total" ValueProperty="yAxis" 
+                                    RenderingOrder="1" 
+                                    Stroke="@colorTone.PrimaryDarken" 
+                                    Fill="@colorTone.PrimaryLighten">
+                    <RadzenSeriesDataLabels Visible="@ShowDataLabels" />
+                </RadzenColumnSeries>
+
+                <RadzenColumnOptions Radius="0" Width="@BarWidth" />
+                <RadzenCategoryAxis Min="null" Padding="10" Formatter="@FormatXAxisDates" />
+                <RadzenValueAxis Formatter="@ConvertToString">
+                    <RadzenGridLines StrokeWidth="0.25" Visible="true" />
+                </RadzenValueAxis>
+                <RadzenLegend Visible="false" Position="Radzen.Blazor.LegendPosition.Bottom" />
+            </RadzenChart>
+        </MudContainer>
+    </MudContainer>
+</MudPaper>
+
+@code {
+    [Parameter] public string Title { get; set; }
+    [Parameter] public IEnumerable<WorkoutDto> Data { get; set; }
+    [Parameter] public string ViewBy { get; set; }
+
+    private int PersonalBest { get; set; }
+    private bool Smooth = true;
+    private bool ShowDataLabels = false;
+    private bool ShowData = true;
+    private int BarWidth = 6;
+
+    private DateDataItem[] ChartData;
+
+    private ColorTone colorTone = new(false);
+
+    protected override void OnParametersSet()
+    {
+        CalculateChartsBasedOnViewByValue();
+    }
+
+    protected override void OnInitialized()
+    {
+        _themeService.OnThemeChanged += OnThemeChanged;
+    }
+
+    private async void OnThemeChanged()
+    {
+        var isDark = await _claimService.IsDarkTheme();
+        colorTone = new ColorTone(isDark);
+        StateHasChanged();
+    }
+
+    private void CalculateChartsBasedOnViewByValue()
+    {
+        if (ViewBy.Equals("Workout"))
+        {
+            BarWidth = 6;
+        }
+        else
+        {
+            BarWidth = 9;
+        }
+
+        var now = DateTime.Now;
+
+        if (ViewBy.Equals("Week"))
+        {
+            var xMonthAgo = now.AddMonths(-4);
+            var xMonthData = Data.Where(x => x.Date.Date >= xMonthAgo).OrderBy(x => x.Date);
+
+            var newData = FillInDates(xMonthData, xMonthAgo, now);
+            var weeklySummary = SummarizeWeeks(newData);
+
+            CalculatePBs(weeklySummary);
+
+            ChartData = weeklySummary;
+        }
+        else
+        {
+            var oneMonthAgo = now.AddMonths(-1);
+            var oneMonthData = Data.Where(x => x.Date.Date >= oneMonthAgo).OrderBy(x => x.Date);
+
+            var newData = FillInDates(oneMonthData, oneMonthAgo, now);
+
+            CalculatePBs(newData);
+
+            ChartData = newData;
+        }
+    }
+
+    private DateDataItem[] FillInDates(IEnumerable<WorkoutDto> data, DateTime from, DateTime until)
+    {
+        var workoutDates = data.Select(x => x.Date.Date);
+
+        var dayCount = (int)(until - from).TotalDays + 1;
+        var newData = new DateDataItem[dayCount];
+        for (int i = 0; i < dayCount; i++)
+        {
+            var newDate = from.AddDays(i).Date;
+            if (workoutDates.Contains(newDate))
+            {
+                var flattened = new List<WorkoutValuesDto>();
+                var workoutValues = data.Where(x => x.Date.Date == newDate).Select(x => x.WokoutValues);
+                foreach (var val in workoutValues)
+                {
+                    flattened.AddRange(val);
+                }
+
+                double pushups = 0;
+                foreach(var value in flattened)
+                {
+                    pushups += (value.Amount * (int)value.WorkoutType.PushUps);
+                }
+
+                newData[i] = new DateDataItem { xAxis = newDate, yAxis = pushups };
+            }
+            else
+                newData[i] = new DateDataItem { xAxis = newDate, yAxis = 0 };
+        }
+
+        return newData;
+    }
+
+    private static DateDataItem[] SummarizeWeeks(IEnumerable<DateDataItem> data)
+    {
+        var weeklySummaries = data
+            .GroupBy(workout => GetStartOfWeek(workout.xAxis))
+            .Select(group => new DateDataItem
+                {
+                    xAxis = group.Key,
+                    yAxis = group.Sum(x => x.yAxis)
+                })
+            .ToArray();
+
+        return weeklySummaries;
+    }
+
+    private void CalculatePBs(DateDataItem[] data)
+    {
+        PersonalBest = (int)data.Max(x => x.yAxis);
+    }
+
+    private static DateTime GetStartOfWeek(DateTime date)
+    {
+        int diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
+        return date.AddDays(-diff).Date;
+    }
+
+    public void Dispose()
+    {
+        _themeService.OnThemeChanged -= OnThemeChanged;
+    }
+
+    string ConvertToString(object value)
+    {
+        return value.ToString();
+    }
+
+    string FormatXAxisDates(object value)
+    {
+        if (value != null)
+        {
+            var x = Convert.ToDateTime(value).ToString("dd-MMM");
+            return x;
+        }
+
+        return string.Empty;
+    }
+}

@@ -1,5 +1,4 @@
-﻿using Bdt.Shared.Dtos;
-using Bdt.Shared.Dtos.WorkoutValues;
+﻿using Bdt.Shared.Dtos.WorkoutValues;
 
 namespace Bdt.Shared.Dtos.Workouts;
 

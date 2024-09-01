@@ -1,0 +1,47 @@
+﻿@page "/"
+
+@using Bdt.Client.AppServices.Claims
+@using Bdt.Client.Provider
+@using Bdt.Shared.Models.App;
+@using System.IdentityModel.Tokens.Jwt;
+@using Bdt.Client.AppServices.App;
+@using Bdt.Client.AppServices.Theme;
+@using Bdt.Client.Provider;
+@using Bdt.Client.AppServices.Theme;
+@using Bdt.Client.AppServices.App;
+@using Bdt.Client.AppServices.Claims;
+
+@inject IAppService _appService
+@inject IClaimService _claimService
+@inject BdtThemeService _themeService
+@inject NavigationManager _navigation
+@inject CustomAuthStateProvider _authState
+
+<PageLoading />
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        //await _authState.MarkUserAsLoggedOutAsync();
+        var authState = await _authState.GetAuthenticationStateAsync();
+
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            var isDarkMode = await _claimService.IsDarkTheme();
+
+            var isFirstLogin = await _claimService.IsFirstLogin();
+            if (isFirstLogin)
+            {
+                _navigation.NavigateTo("/getstarted");
+            }
+            else
+            {
+                _navigation.NavigateTo("/dashboard");
+            }
+        }
+        else
+        {
+            _navigation.NavigateTo("/login");
+        }
+    }
+}

@@ -1,0 +1,209 @@
+﻿@page "/addworkout/{WorkoutDuration:decimal}"
+
+@using Bdt.Shared.Static
+@using Bdt.Client.AppServices.Levels;
+@using Bdt.Client.AppServices.WorkoutType
+@using Bdt.Client.AppServices.Workouts;
+@using Bdt.Shared.Dtos.Levels;
+@using Bdt.Shared.Dtos.WorkoutType
+@using Bdt.Shared.Dtos.WorkoutValues;
+@using Bdt.Shared.Dtos.Workouts;
+@using Bdt.Client.Shared
+@using BlafettisLib;
+
+@inject IWorkoutTypeService _workoutTypeService
+@inject IWorkoutService _workoutService
+@inject ILevelService _levelService
+@inject IBdtDialogService _dialogService
+@inject NavigationManager _navigation
+
+@if (loading)
+{
+    <PageLoading />
+}
+else
+{
+    <MudCard Class="pb-7">
+        <MudContainer Class="pt-8" MaxWidth="MaxWidth.ExtraExtraLarge">
+
+            <MudText Class="mb-5" Align="MudBlazor.Align.Center" Typo="Typo.h6">WORKOUT COMPLETE!</MudText>
+            <MudDatePicker Class="mb-3" Variant="MudBlazor.Variant.Filled" @bind-Date="workoutDate" />
+            <MudSelect Class="mb-3" T="string" Label="Workout" Variant="MudBlazor.Variant.Filled" AnchorOrigin="Origin.BottomCenter" SelectedValuesChanged="@BurpeeTypeSelected" @bind-Value="selectedBurpeeType">
+                @foreach (var workoutType in workoutTypes)
+                {
+                    <MudSelectItem Value="@workoutType.Name" />
+                }
+            </MudSelect>
+
+            @if (isAccessoryWorkout)
+            {
+                @for (int i = 0; i < accessoryWorkouts.Count; i++)
+                {
+                    var mudSelect = accessoryWorkouts[i].Item1;
+                    var mudNumeric = accessoryWorkouts[i].Item2;
+
+                    <MudGrid>
+                        <MudItem Style="width: 74%">
+                            <MudSelect MultiSelection=false Class="mb-3" T="string" Label="Type" Variant="MudBlazor.Variant.Filled" AnchorOrigin="Origin.BottomCenter" @ref="mudSelect">
+                                @foreach (var accessoryWorkoutType in accessoryWorkoutTypes)
+                                {
+                                    <MudSelectItem Value="@accessoryWorkoutType.Name" />
+                                }
+                            </MudSelect>
+                        </MudItem>
+                        <MudItem Style="width: 25%">
+                            <MudNumericField Class="mb-3" T="int" Label="Amount" Variant="MudBlazor.Variant.Filled" Min="1" @ref="mudNumeric" />
+                        </MudItem>
+                    </MudGrid>
+                }
+
+                <MudGrid>
+                    <MudItem Style="width:49.5%">
+                        <MudButton Variant="MudBlazor.Variant.Outlined" FullWidth="true" StartIcon="@Icons.Material.Filled.Remove" OnClick="RemoveAccessory" />
+                    </MudItem>
+                    <MudItem Style="width:49.5%">
+                        <MudButton Variant="MudBlazor.Variant.Outlined" FullWidth="true" StartIcon="@Icons.Material.Filled.Add" OnClick="AddAccessory" />
+                    </MudItem>
+                </MudGrid>
+            }
+            else
+            {
+                <MudNumericField Class="mb-3" @onfocus="@(() => numberOfBurpeesField.SelectAsync())" T="int" @bind-Value="numberOfBurpees" Label="Number of Burpees" Variant="MudBlazor.Variant.Filled" Min="1" @ref="numberOfBurpeesField" />
+            }
+
+            <Blafettis elementCount="100" stagger="20" spread="90" duration="3000" @ref="blafettis" />
+
+            <MudNumericField Class="mb-6" @onfocus="@(() => workoutDurationField.SelectAsync())" T="decimal" @bind-Value="WorkoutDuration" Label="Workout Time (minutes)" Variant="MudBlazor.Variant.Filled" Min="1" @ref="workoutDurationField" />
+            <MudTextField Class="mb-3" T="string" Label="How was the workout?" Variant="MudBlazor.Variant.Outlined" @bind-Value="@workoutComment" Lines="3" MaxLength="275" />
+
+            <MudGrid Class="justify-end mt-5 mb-5" Style="max-width: 100%">
+                <MudButton Style="margin-left: 30px" Color="@MudBlazor.Color.Warning" Href="/dashboard">Do this later.</MudButton>
+                <MudSpacer />
+                <MudIconButton Disabled="saveDisabled" Icon="@Icons.Material.Filled.Save" Color="@MudBlazor.Color.Success" OnClick="SaveWorkout" />
+            </MudGrid>
+
+        </MudContainer>
+    </MudCard>
+}
+
+@code {
+    [Parameter] public decimal WorkoutDuration { get; set; }
+
+    private bool saveDisabled = false;
+    private IEnumerable<WorkoutTypeDto> workoutTypes = [];
+    private IEnumerable<WorkoutTypeDto> accessoryWorkoutTypes = [];
+    private IEnumerable<LevelDto> Levels = [];
+    private DateTime? workoutDate = DateTime.Now;
+    private string workoutComment = string.Empty;
+    private string selectedBurpeeType = string.Empty;
+    private int numberOfBurpees;
+    private bool loading = true;
+    private bool isAccessoryWorkout = false;
+
+    private List<(MudSelect<string>, MudNumericField<int>)> accessoryWorkouts = [(new MudSelect<string>(), new MudNumericField<int>())];
+
+    private MudNumericField<int> numberOfBurpeesField = default!;
+    private MudNumericField<decimal> workoutDurationField = default!;
+
+    protected Blafettis blafettis = default!;
+
+    private void Confetti()
+    {
+        blafettis.RaiseConfetti();
+    }
+
+    private void BurpeeTypeSelected()
+    {
+        isAccessoryWorkout = selectedBurpeeType.Equals("Accessory");
+    }
+
+    private void AddAccessory()
+    {
+        var mudSelect = new MudSelect<string>();
+        var mudNumeric = new MudNumericField<int>();
+        accessoryWorkouts.Add((mudSelect, mudNumeric));
+    }
+
+    private void RemoveAccessory()
+    {
+        accessoryWorkouts.Remove(accessoryWorkouts.Last());
+    }
+
+    private async Task SaveWorkout()
+    {
+        saveDisabled = true;
+
+        if (WorkoutDuration == 20)
+        {
+            if (selectedBurpeeType == "6 Count")
+            {
+                var level = Levels.FirstOrDefault(x => x.Lower6Count <= numberOfBurpees && x.Upper6Count >= numberOfBurpees);
+                if (SessionVariables.SixCountLevel is not null && level.Id > SessionVariables.SixCountLevel.Id)
+                {
+
+                    blafettis.RaiseConfetti();
+                    await _dialogService.ShowSucessDialog("Congratulations!", $"You have unlocked {level.Level} for 6 counts!");
+                }
+            }
+
+            if (selectedBurpeeType == "Navy Seal")
+            {
+                var level = Levels.FirstOrDefault(x => x.LowerNavySeal <= numberOfBurpees && x.UpperNavySeal >= numberOfBurpees);
+                if (SessionVariables.NavySealLevel is not null && level.Id > SessionVariables.NavySealLevel.Id)
+                {
+                    blafettis.RaiseConfetti();
+                    await _dialogService.ShowSucessDialog("Congratulations!", $"You have unlocked {level.Level} for navy seals!");
+                }
+            }
+        }
+
+        var workoutValuesDto = new List<CreateWorkoutValuesDto>();
+        if (selectedBurpeeType.Equals("Accessory"))
+        {
+            foreach (var accessoryWorkout in accessoryWorkouts)
+            {
+                workoutValuesDto.Add(new CreateWorkoutValuesDto
+                    {
+                        WorkoutTypeId = accessoryWorkoutTypes.FirstOrDefault(x => x.Name.Equals(accessoryWorkout.Item1.Value)).Id,
+                        Amount = accessoryWorkout.Item2.Value,
+                    });
+            }
+        }
+        else
+        {
+            workoutValuesDto.Add(new CreateWorkoutValuesDto
+                {
+                    WorkoutTypeId = accessoryWorkoutTypes.FirstOrDefault(x => x.Name.Equals(selectedBurpeeType)).Id,
+                    Amount = numberOfBurpees
+                });
+        }
+
+
+        var createWorkoutDto = new CreateWorkoutDto
+        {
+            Date = (DateTime)workoutDate,
+            WorkoutTime = WorkoutDuration,
+            Comment = workoutComment,
+            WorkoutTypeId = workoutTypes.FirstOrDefault(x => x.Name.Equals(selectedBurpeeType)).Id,
+            WokoutValues = workoutValuesDto
+        };
+
+        var response = await _workoutService.CreateUserWorkout(createWorkoutDto);
+
+        if (response.IsSuccess)
+        {
+            _navigation.NavigateTo("#");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        workoutTypes = (await _workoutTypeService.GetAllWorkoutTypes()).Data;
+        accessoryWorkoutTypes = workoutTypes.Where(x => !x.Name.Equals("Accessory")).ToList();
+
+        Levels = (await _levelService.GetAllLevels()).Data;
+
+        loading = false;
+        StateHasChanged();
+    }
+}

@@ -21,7 +21,7 @@
 @inject IWeekdayService _weekdayService
 @inject IBdtDialogService _dialogService
 
-@if (Loading)
+@if (loading)
 {
     <PageLoading />
 }
@@ -46,8 +46,8 @@ else
                 <MudSpacer />
 
                 <MudContainer Style="max-width: 100%">
-                    <MudText Typo="Typo.caption">@TimeScheduled/80 minutes scheduled</MudText>
-                    <MudProgressLinear Color="@(TimeScheduled < 80 ? MudBlazor.Color.Secondary : MudBlazor.Color.Success)" Value="@TimeScheduled" Max="80" Class="my-4" Style="width: 100%; height:7px;" />
+                    <MudText Typo="Typo.caption">@timeScheduled/80 minutes scheduled</MudText>
+                    <MudProgressLinear Color="@(timeScheduled < 80 ? MudBlazor.Color.Secondary : MudBlazor.Color.Success)" Value="@timeScheduled" Max="80" Class="my-4" Style="width: 100%; height:7px;" />
                 </MudContainer>
 
             </MudGrid>
@@ -56,27 +56,27 @@ else
 
     <MudContainer MaxWidth="MaxWidth.Large" Class="mb-3">
 
-        @foreach (var weekday in Weekdays)
+        @foreach (var weekday in weekdays)
         {
             <MudCard Outlined="true" Class="mt-3 mb-3 mud-elevation-1" Style="border-radius:10px">
                 <MudCardHeader>
                     <CardHeaderContent>
-                        <MudText Typo="Typo.body2">@(NextWorkout?.WeekDayId == weekday.Id ? $"{weekday.Name} (Next workout)" : weekday.Name)</MudText>
+                        <MudText Typo="Typo.body2">@(nextWorkout?.WeekDayId == weekday.Id ? $"{weekday.Name} (Next workout)" : weekday.Name)</MudText>
                     </CardHeaderContent>
                     <CardHeaderActions>
-                        <MudIconButton Disabled="@(TimeScheduled >= 80)" Icon="@Icons.Material.Filled.Add" Color="MudBlazor.Color.Tertiary" OnClick="() => CreateNewWorkout(weekday.Id)" />
+                        <MudIconButton Disabled="@(timeScheduled >= 80)" Icon="@Icons.Material.Filled.Add" Color="MudBlazor.Color.Tertiary" OnClick="() => CreateNewWorkout(weekday.Id)" />
                     </CardHeaderActions>
                 </MudCardHeader>
                 <MudCardContent>
                     @{
-                        var plans = WeeklyPlans.Where(x => x.WeekDayId == weekday.Id);
+                        var plans = weeklyPlans.Where(x => x.WeekDayId == weekday.Id);
                         var color = MudBlazor.Color.Primary;
                     }
                     @foreach (var plan in plans)
                     {
-                        if (plan.Equals(NextWorkout))
+                        if (plan.Equals(nextWorkout))
                         {
-                            <MudChip T="string" OnClick="@(() => NextWorkoutClicked(NextWorkout))" OnClose="() => DeletePlan(plan.Id)" Color="MudBlazor.Color.Tertiary">@plan.WorkoutType.Name (@plan.WorkoutDuration mins)</MudChip>
+                            <MudChip T="string" OnClick="@(() => NextWorkoutClicked(nextWorkout))" OnClose="() => DeletePlan(plan.Id)" Color="MudBlazor.Color.Tertiary">@plan.WorkoutType.Name (@plan.WorkoutDuration mins)</MudChip>
                         }
                         else
                         {
@@ -90,16 +90,16 @@ else
 }
 
 @code {
-    private List<PlannerDto> WeeklyPlans = [];
-    private List<WeekdayDto> Weekdays = [];
-    private List<WorkoutTypeDto> WorkoutTypes = [];
+    private List<PlannerDto> weeklyPlans = [];
+    private List<WeekdayDto> weekdays = [];
+    private List<WorkoutTypeDto> workoutTypes = [];
 
-    private PlannerDto NextWorkout;
+    private PlannerDto nextWorkout;
 
-    private bool Loading = true;
-    private bool NotificationEnabled;
+    private bool loading = true;
+    private bool notificationEnabled;
     private int today = (int)DateTime.Now.DayOfWeek;
-    private int TimeScheduled;
+    private int timeScheduled;
 
     private async Task NextWorkoutClicked(PlannerDto plannerDto)
     {
@@ -109,13 +109,13 @@ else
     private PlannerDto FindNextWorkout()
     {
         var today = (int)DateTime.Now.DayOfWeek;
-        if (WeeklyPlans.Any(x => x.WeekDayId >= today))
+        if (weeklyPlans.Any(x => x.WeekDayId >= today))
         {
-            return WeeklyPlans.Where(x => x.WeekDayId >= today)
+            return weeklyPlans.Where(x => x.WeekDayId >= today)
                 .OrderBy(x => x.WeekDayId).First();
         }
 
-        return WeeklyPlans.OrderBy(x => x.WeekDayId).First();
+        return weeklyPlans.OrderBy(x => x.WeekDayId).First();
     }
 
     private async Task DeletePlan(Guid weeklyPlanId)
@@ -125,17 +125,17 @@ else
         if (response.IsSuccess)
         {
             var deletedPlan = response.Data;
-            WeeklyPlans.RemoveAll(x => x.Id == weeklyPlanId);
-            WeeklyPlans.OrderBy(x => x.WeekDayId);
-            TimeScheduled = (int)WeeklyPlans.Select(x => x.WorkoutDuration).Sum();
+            weeklyPlans.RemoveAll(x => x.Id == weeklyPlanId);
+            weeklyPlans.OrderBy(x => x.WeekDayId);
+            timeScheduled = (int)weeklyPlans.Select(x => x.WorkoutDuration).Sum();
         }
         else
         {
             await _dialogService.ShowErrorDialog("Oops!", "We encountered an issue while attempting to delete this workout, please try again.");
         }
 
-        if (WeeklyPlans.Count() > 0)
-            NextWorkout = FindNextWorkout();
+        if (weeklyPlans.Count() > 0)
+            nextWorkout = FindNextWorkout();
 
         //if (NotificationEnabled)
         //Helper.SetNotifications(WeeklyPlans);
@@ -143,7 +143,7 @@ else
 
     private async Task CreateNewWorkout(int weekdayId)
     {
-        var newWorkout = await _dialogService.CreatePlanDialog(WorkoutTypes, TimeScheduled);
+        var newWorkout = await _dialogService.CreatePlanDialog(workoutTypes, timeScheduled);
 
         if (newWorkout is null)
             return;
@@ -151,23 +151,23 @@ else
         var createPlannerDto = new CreatePlannerDto
             {
                 WorkoutDuration = newWorkout.WorkoutDuration,
-                WorkoutTypeId = WorkoutTypes.FirstOrDefault(x => x.Name == newWorkout.WorkoutType).Id,
+                WorkoutTypeId = workoutTypes.FirstOrDefault(x => x.Name == newWorkout.WorkoutType).Id,
                 WeekDayId = weekdayId
             };
 
         var response = await _plannerSevice.CreateUserPlans(createPlannerDto);
         if (response.IsSuccess)
         {
-            WeeklyPlans.Add(response.Data);
-            TimeScheduled = (int)WeeklyPlans.Select(x => x.WorkoutDuration).Sum();
+            weeklyPlans.Add(response.Data);
+            timeScheduled = (int)weeklyPlans.Select(x => x.WorkoutDuration).Sum();
         }
         else
         {
             await _dialogService.ShowErrorDialog("Oops!", "We encountered an issue while attempting to schedule this workout, please try again.");
         }
 
-        if (WeeklyPlans.Count() > 0)
-            NextWorkout = FindNextWorkout();
+        if (weeklyPlans.Count() > 0)
+            nextWorkout = FindNextWorkout();
 
         // if (NotificationEnabled)
         //     Helper.SetNotifications(WeeklyPlans);
@@ -177,31 +177,31 @@ else
     {
         //NotificationEnabled = await LocalNotificationCenter.Current.AreNotificationsEnabled();
 
-        var weeklyPlans = await _plannerSevice.GetUserPlans();
-        var weekdays = await _weekdayService.GetAllWeekdays();
-        var workoutTypes = await _workoutTypeService.GetAllWorkoutTypes();
+        var weeklyPlansResp = await _plannerSevice.GetUserPlans();
+        var weekdaysResp = await _weekdayService.GetAllWeekdays();
+        var workoutTypesResp = await _workoutTypeService.GetAllWorkoutTypes();
 
-        if (weeklyPlans.IsSuccess && weekdays.IsSuccess && workoutTypes.IsSuccess)
+        if (weeklyPlansResp.IsSuccess && weekdaysResp.IsSuccess && workoutTypesResp.IsSuccess)
         {
-            WeeklyPlans = weeklyPlans.Data.OrderBy(x => x.WeekDayId).ToList();
-            Weekdays = weekdays.Data.OrderBy(x => x.Id).ToList();
-            WorkoutTypes = workoutTypes.Data.ToList();
-            TimeScheduled = (int)WeeklyPlans.Select(x => x.WorkoutDuration).Sum();
-            Loading = false;
+            weeklyPlans = weeklyPlansResp.Data.OrderBy(x => x.WeekDayId).ToList();
+            weekdays = weekdaysResp.Data.OrderBy(x => x.Id).ToList();
+            this.workoutTypes = workoutTypesResp.Data.ToList();
+            timeScheduled = (int)weeklyPlans.Select(x => x.WorkoutDuration).Sum();
+            loading = false;
         }
         else
         {
             await _dialogService.ShowErrorDialog("Oops!", "We encountered an issue while attempting to retrieve your Weekly schedule, please try again.");
 
-            WeeklyPlans = [];
-            Weekdays = [];
-            WorkoutTypes = [];
-            TimeScheduled = 0;
-            Loading = false;
+            this.weeklyPlans = [];
+            this.weekdays = [];
+            this.workoutTypes = [];
+            timeScheduled = 0;
+            loading = false;
         }
 
-        if (WeeklyPlans.Count() > 0)
-            NextWorkout = FindNextWorkout();
+        if (this.weeklyPlans.Count() > 0)
+                nextWorkout = FindNextWorkout();
 
         // if (NotificationEnabled)
         //     Helper.SetNotifications(WeeklyPlans);

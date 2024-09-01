@@ -30,8 +30,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddMudServices();
 builder.Services.AddBlazoredToast();
 
-var uri = new Uri("https://bdtapi-ghgqdkfbdxb2etgb.eastus-01.azurewebsites.net/api/");
-//var uri = new Uri("https://localhost:7052/api/");
+//var uri = new Uri("https://bdtapi-ghgqdkfbdxb2etgb.eastus-01.azurewebsites.net/api/");
+var uri = new Uri("https://localhost:7052/api/");
 
 builder.Services.AddHttpClient("NoAuthBdtApi", client => { client.BaseAddress = uri; });
 builder.Services.AddHttpClient("BdtApi", client => { client.BaseAddress = uri; })

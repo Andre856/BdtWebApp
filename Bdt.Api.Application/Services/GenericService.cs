@@ -228,7 +228,7 @@ public class GenericService<TId, TEntity, TDto, TUpdateDto, TCreateDto> : Generi
     public virtual async Task<TDto> InsertAsync(TCreateDto obj)
     {
         var entity = _mapper.Map<TEntity>(obj);
-        var result = _repository.InsertAsync(entity);
+        var result = await _repository.InsertAsync(entity);
         return _mapper.Map<TDto>(result);
     }
 

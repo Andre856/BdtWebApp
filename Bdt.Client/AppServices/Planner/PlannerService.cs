@@ -3,6 +3,7 @@ using Bdt.Shared.Models.App;
 using Newtonsoft.Json;
 using System.Text;
 using Bdt.Client.AppServices.GenericApi;
+using System.Net.Http.Json;
 
 namespace Bdt.Client.AppServices.Planner;
 
@@ -33,11 +34,9 @@ public class PlannerService : GenericApiService, IPlannerService
 
     public async Task<ApiWrapper<PlannerDto>> CreateUserPlans(CreatePlannerDto createPlans)
     {
-        var serialisedString = JsonConvert.SerializeObject(createPlans);
-
         try
         {
-            var response = await _httpClient.PostAsync("v1/Planner/Create", new StringContent(serialisedString, Encoding.UTF8, "application/json"));
+            var response = await _httpClient.PostAsJsonAsync("v1/Planner/Create", createPlans);
 
             string contentString = await response.Content.ReadAsStringAsync();
             var content = JsonConvert.DeserializeObject<ApiWrapper<PlannerDto>>(contentString);
@@ -77,11 +76,9 @@ public class PlannerService : GenericApiService, IPlannerService
 
     public async Task<ApiWrapper<PlannerDto>> UpdateUserPlans(UpdatePlannerDto updatePlans)
     {
-        var serialisedString = JsonConvert.SerializeObject(updatePlans);
-
         try
         {
-            var response = await _httpClient.PatchAsync("v1/Planner/Update", new StringContent(serialisedString, Encoding.UTF8, "application/json"));
+            var response = await _httpClient.PatchAsJsonAsync("v1/Planner/Update", updatePlans);
 
             string contentString = await response.Content.ReadAsStringAsync();
             var content = JsonConvert.DeserializeObject<ApiWrapper<PlannerDto>>(contentString);

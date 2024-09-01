@@ -49,7 +49,7 @@ public class MappingProfile : Profile
         CreateMap<PlannerDto, PlannerEntity>();
         CreateMap<UpdatePlannerDto, PlannerDto>();
         CreateMap<CreatePlannerDto, PlannerDto>();
-        CreateMap<CreatePlannerDto, PlannerEntity>();
+        CreateMap<CreatePlannerDto, PlannerEntity>().ReverseMap();
         CreateMap<PlannerDto, DeletePlannerDto>();
         CreateMap<PlannerDto, CreatePlannerDto>();
 

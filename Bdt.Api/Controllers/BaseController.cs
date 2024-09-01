@@ -3,7 +3,6 @@ using Bdt.Api.Application.Services.Interfaces;
 using Bdt.Api.Domain.Entities;
 using Bdt.Api.Domain.Helpers;
 using Bdt.Shared.Dtos;
-using Bdt.Shared.Dtos.Planner;
 using Bdt.Shared.Models.App;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -420,7 +419,7 @@ public class BaseController<TId, TEntity, TDto, TUpdateDto, TCreateDto>
                 string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 if (string.IsNullOrEmpty(userId))
-                    return BadRequest(ApiWrapper<IEnumerable<PlannerDto>>.Failed("User identifier is missing."));
+                    return BadRequest(ApiWrapper<TDto>.Failed("User identifier is missing."));
 
                 userDto.UserId = userId;
             }
@@ -453,7 +452,7 @@ public class BaseController<TId, TEntity, TDto, TUpdateDto, TCreateDto>
                 string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 if (string.IsNullOrEmpty(userId))
-                    return BadRequest(ApiWrapper<IEnumerable<PlannerDto>>.Failed("User identifier is missing."));
+                    return BadRequest(ApiWrapper<IEnumerable<TDto>>.Failed("User identifier is missing."));
 
                 foreach (var userDto in userDtos)
                     userDto.UserId = userId;

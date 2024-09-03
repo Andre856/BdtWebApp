@@ -1,0 +1,30 @@
+﻿<style>
+    .mud-input.mud-input-outlined .mud-input-outlined-border {
+        border-radius: 50px;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<MudTextField T="string"
+              ValueChanged="OnUsernameChanged"
+              Placeholder="Username"
+              Value="Username"
+              Variant="MudBlazor.Variant.Outlined"
+              Style="height:40px"
+              Adornment="Adornment.Start"
+              AdornmentIcon="@Icons.Material.Outlined.Person"
+              MaxLength="50"
+              Required="true"
+              RequiredError="@string.Empty" />
+
+@code {
+    [Parameter] public string Username { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> UsernameChanged { get; set; }
+
+    private async Task OnUsernameChanged(string value)
+    {
+        Username = value;
+        await UsernameChanged.InvokeAsync(value);
+    }
+}

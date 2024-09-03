@@ -12,7 +12,7 @@
 @inject CustomAuthStateProvider _authStateProvider
 @inject BdtThemeService _themeService
 
-<MudThemeProvider IsDarkMode="@isDarkTheme" />
+<MudThemeProvider Theme="MyCustomTheme" IsDarkMode="@isDarkTheme" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
@@ -46,6 +46,16 @@ else
     private bool isAuthenticated;
     private bool isFirstLogin = false;
     private bool isDarkTheme = false;
+    private MudTheme MyCustomTheme = new MudTheme
+    {
+        Typography = new()
+        {
+            Default = new Default()
+                {
+                    FontFamily = new[] { "Oswald", "Helvetica", "Arial", "sans-serif" }
+                }
+        }
+    };
 
     private async Task ToggleTheme()
     {
@@ -53,7 +63,7 @@ else
         await _appService.UpdateUserThemeAsync(isDarkTheme);
         _themeService.NotifyThemeChanged();
     }
-    
+
     protected override async Task OnInitializedAsync()
     {
         var authState = await _authStateProvider.GetAuthenticationStateAsync();
@@ -69,6 +79,14 @@ else
 
         // Subscribe to authentication state changes
         _authStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+
+        // MyCustomTheme.Typography = new Typography()
+        //     {
+        //         Default = new Default()
+        //         {
+        //             FontFamily = new[] { "Oswald", "Helvetica", "Arial", "sans-serif" }
+        //         }
+        //     };
     }
 
     private async void OnAuthenticationStateChanged(Task<AuthenticationState> task)

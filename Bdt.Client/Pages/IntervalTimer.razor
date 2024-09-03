@@ -3,6 +3,8 @@
 
 @using Bdt.Client.AppServices.Claims
 @using Bdt.Client.AppServices.WorkoutType
+@using Bdt.Client.Shared.Buttons
+@using Bdt.Client.Shared.TextInputs
 @using Bdt.Client.Themes
 @using Bdt.Shared.Models.Timer;
 @using Bdt.Client.AppServices.Levels;
@@ -35,10 +37,10 @@ else
 
             @if (!TimerStarted)
             {
-                <MudNumericField Class="mt-2 mb-4" @onfocus="@(() => WorkoutDurationField.SelectAsync())" T="decimal" @bind-Value="WorkoutDuration" Label="Workout Time (minutes)" Variant="MudBlazor.Variant.Filled" Min="1" @ref="WorkoutDurationField" />
-                <MudNumericField Class="mb-4" @onfocus="@(() => TotalNumberOfSetsField.SelectAsync())" T="int" @bind-Value="TotalNumberOfSets" Label="Number of Sets" Variant="MudBlazor.Variant.Filled" Min="1" @ref="TotalNumberOfSetsField" />
-                <MudNumericField @onfocus="@(() => RestTimePerSetField.SelectAsync())" T="int" @bind-Value="RestTimePerSet" Label="Rest Time per Set (seconds)" Variant="MudBlazor.Variant.Filled" Min="0" @ref="RestTimePerSetField" />
-                
+                <NumericInputComponent Class="mt-2 mb-4" TItem="decimal" @bind-Value="@WorkoutDuration" Min="1" Label="Workout Time (minutes)" />
+                <NumericInputComponent Class="mb-4" TItem="int" @bind-Value="@TotalNumberOfSets" Min="1" Label="Number of Sets" />
+                <NumericInputComponent Class="mb-4" TItem="int" @bind-Value="@RestTimePerSet" Min="0" Label="Rest Time per Set (seconds)" />
+
                 <MudGrid Justify="Justify.Center" Style="align-items: center;">
                     <MudButton Style="width:120px;height:120px;border-radius:50%;margin-top:50%" Variant="MudBlazor.Variant.Filled" Color="MudBlazor.Color.Primary" OnClick="StartTimer">Start</MudButton>
                 </MudGrid>
@@ -94,20 +96,40 @@ else
                                          YValue="@(e => e.TimerPercentage)" />
                     </ApexChart>
 
-                    <MudGrid Justify="Justify.Center" Style="align-items: center;">
+                    <MudGrid Justify="Justify.Center" Spacing="10">
+                        <MudItem>
+                            <ToggleIconButtonsComponent HeightPx="50"
+                                                        WidthPx="50"
+                                                        Icon="@Icons.Material.Filled.StopCircle"
+                                                        ToggledIcon="@Icons.Material.Filled.RestartAlt"
+                                                        Color="@MudBlazor.Color.Error"
+                                                        ToggleColor="@MudBlazor.Color.Warning"
+                                                        Toggled="@Stopped"
+                                                        ToggledChanged="@StopToggled" />
+                        </MudItem>
 
-                        <MudToggleIconButton Size="MudBlazor.Size.Large" Icon="@Icons.Material.Filled.StopCircle" Color="@MudBlazor.Color.Error" ToggledChanged="@StopToggled"
-                                             ToggledIcon="@Icons.Material.Filled.RestartAlt" ToggledColor="@MudBlazor.Color.Warning" Toggled="@Stopped" ToggledSize="MudBlazor.Size.Large" />
-                        
                         @if (!Stopped)
                         {
-                            <MudToggleIconButton Size="MudBlazor.Size.Large" Icon="@Icons.Material.Filled.PauseCircle" Color="@MudBlazor.Color.Info" ToggledChanged="@PauseToggled"
-                                                 ToggledIcon="@Icons.Material.Filled.PlayCircle" ToggledColor="@MudBlazor.Color.Success" ToggledSize="MudBlazor.Size.Large" Toggled="@Paused" />
+                            <MudItem>
+                                <ToggleIconButtonsComponent HeightPx="50"
+                                                            WidthPx="50"
+                                                            Icon="@Icons.Material.Filled.PauseCircle"
+                                                            ToggledIcon="@Icons.Material.Filled.PlayCircle"
+                                                            Color="@MudBlazor.Color.Info"
+                                                            ToggleColor="@MudBlazor.Color.Success"
+                                                            Toggled="@Paused"
+                                                            ToggledChanged="@PauseToggled" />
+                            </MudItem>
                         }
+
                         @if (Stopped)
                         {
-                            <MudIconButton Size="MudBlazor.Size.Large" Icon="@Icons.Material.Filled.Cancel" Color="@MudBlazor.Color.Error" OnClick="CancelWorkout" />
-                            <MudIconButton Size="MudBlazor.Size.Large" Icon="@Icons.Material.Filled.Done" Color="@MudBlazor.Color.Success" OnClick="CompleteWorkout" />
+                            <MudItem>
+                                <IconButtonComponent HeightPx="50" WidthPx="50" Color="@MudBlazor.Color.Error" Icon="@Icons.Material.Filled.Cancel" OnClick="CancelWorkout" />
+                            </MudItem>
+                            <MudItem>
+                                <IconButtonComponent HeightPx="50" WidthPx="50" Color="@MudBlazor.Color.Success" Icon="@Icons.Material.Filled.Done" OnClick="CompleteWorkout" />
+                            </MudItem>
                         }
                     </MudGrid>
                 </div>
@@ -139,10 +161,6 @@ else
     private IEnumerable<WorkoutTypeDto> WorkoutTypes;
     private ApexChart<TimerData> ApexChartRef;
     private ApexChartOptions<TimerData> ChartOptions = new();
-
-    private MudNumericField<decimal> WorkoutDurationField;
-    private MudNumericField<int> TotalNumberOfSetsField;
-    private MudNumericField<int> RestTimePerSetField;
 
     private ColorTone colorTone = new(false);
 

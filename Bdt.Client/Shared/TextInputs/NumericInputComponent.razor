@@ -1,0 +1,42 @@
+﻿@typeparam TItem
+
+<style>
+    .mud-input.mud-input-outlined .mud-input-outlined-border {
+        border-radius: 50px;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+@* <MudNumericField Class="mt-2 mb-4" 
+                 @onfocus="@(() => WorkoutDurationField.SelectAsync())" 
+                 @bind-Value="WorkoutDuration" 
+                 T="decimal"
+                 Label="Workout Time (minutes)" 
+                 Variant="MudBlazor.Variant.Outlined" 
+                 Min="1" @ref="WorkoutDurationField" /> *@
+<MudNumericField Class="@Class"
+                 ValueChanged="OnValueChanged"
+                 HideSpinButtons="true"
+                 Value="@Value"
+                 T="TItem"
+                 Label="@Label"
+                 Variant="MudBlazor.Variant.Outlined"
+                 Adornment="Adornment.End"
+                 AdornmentIcon="@Icons.Material.Outlined.Compress"
+                 Min="@Min" />
+
+@code {
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public required TItem Value { get; set; }
+    [Parameter] public required TItem Min { get; set; }
+    [Parameter] public string Class { get; set; } = string.Empty;
+
+    [Parameter] public EventCallback<TItem> ValueChanged { get; set; }
+
+    private async Task OnValueChanged(TItem value)
+    {
+        Value = value;
+        await ValueChanged.InvokeAsync(value);
+    }
+}

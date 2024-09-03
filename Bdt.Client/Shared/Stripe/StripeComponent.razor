@@ -2,6 +2,7 @@
 @using Bdt.Shared.Models.StripeModels;
 @using Bdt.Shared.Models.Country;
 @using Bdt.Shared.Static
+@using Bdt.Client.Shared.TextInputs
 
 @inject IJSRuntime _js;
 @inject IStripeService _stripeService;
@@ -14,18 +15,20 @@
             <MudGrid>
                 <MudItem xs="12">
                     <div class="form-group">
-                        <MudTextField Required="true" Label="Name on card" id="CardholderName" class="form-control" @bind-Value="@_subRequest.BillingName"></MudTextField>
+                        @* <MudTextField Required="true" Label="Name on card" id="CardholderName" class="form-control" @bind-Value="@_subRequest.BillingName"></MudTextField> *@
+                        <TextInputComponent Required="true" PlaceHolder="Name on card" Id="CardholderName" Class="form-control" @bind-Text="@_subRequest.BillingName" />
                     </div>
                     <ValidationMessage For="@(() => _subRequest.BillingName)" />
                 </MudItem>
                 <MudItem xs="12">
                     <div class="form-group">
-                        <MudTextField Label="Email" Required="true" id="billing-email" class="form-control" @bind-Value="@_subRequest.BillingEmail"></MudTextField>
+                        @* <MudTextField Label="Email" Required="true" id="billing-email" class="form-control" @bind-Value="@_subRequest.BillingEmail"></MudTextField> *@
+                        <TextInputComponent Required="true" PlaceHolder="Email address" Id="billing-email" Class="form-control" @bind-Text="@_subRequest.BillingEmail" />
                     </div>
                     <ValidationMessage For="@(() => _subRequest.BillingEmail)" />
                 </MudItem>
                 <MudItem xs="12">
-                    <MudText Typo="Typo.caption">Card Number*</MudText>
+                    <MudText Class="ml-2" Typo="Typo.caption">Card Number*</MudText>
                     <div class="form-group">
                         <div id="cardNumber-element" style="display: block;
                                       width: 100%;
@@ -36,11 +39,11 @@
                                       background-color: #fff;
                                       background-clip: padding-box;
                                       border: 1px solid #ced4da;
-                                      border-radius: .25rem;
+                                      border-radius: 50px;
+                                      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
                                       transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;">
                         </div>
                         <div id="cardNumber-element-errors" role="alert" color="red"></div>
-                        <div style="height:10px"></div>
                     </div>
                 </MudItem>
                 <MudItem xs="7">
@@ -54,11 +57,11 @@
                                       background-color: #fff;
                                       background-clip: padding-box;
                                       border: 1px solid #ced4da;
-                                      border-radius: .25rem;
+                                      border-radius: 50px;
+                                      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
                                       transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;">
                         </div>
                         <div id="cardExpiry-element-errors" role="alert" color="red"></div>
-                        <div style="height:10px"></div>
                     </div>
                 </MudItem>
                 <MudSpacer />
@@ -73,11 +76,11 @@
                                       background-color: #fff;
                                       background-clip: padding-box;
                                       border: 1px solid #ced4da;
-                                      border-radius: .25rem;
+                                      border-radius: 50px;
+                                      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
                                       transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;">
                         </div>
                         <div id="cardCvc-element-errors" role="alert" color="red"></div>
-                        <div style="height:10px"></div>
                     </div>
                 </MudItem>
                 @* <MudItem xs="12">
@@ -100,13 +103,20 @@
                 </MudItem> *@
                 <MudItem xs="12">
                     <div class="form-group">
-                        <MudSelect SelectedValuesChanged="@(() => CountrySelected())" Required=true Margin="Margin.Dense" T="CountryCodeModel" Label="Country" id="country-code"
+                        <DropdownInputComponent TItem="CountryCodeModel" Id="country-code"
+                                                Required ="true"
+                                                Items="@CountryCodes.CountryCodesList" 
+                                                @bind-SelectedItem="SelectedCountry" 
+                                                Label="Country" 
+                                                GetDisplayValue="@(country => country.Name)" />
+
+                        @* <MudSelect SelectedValuesChanged="@(() => CountrySelected())" Required=true Margin="Margin.Dense" T="CountryCodeModel" Label="Country" id="country-code"
                                    Variant="MudBlazor.Variant.Text" @bind-Value="@SelectedCountry">
                             @foreach (var country in CountryCodes.CountryCodesList)
                             {
                                 <MudSelectItem T="CountryCodeModel" Value="@country">@country.Name</MudSelectItem>
                             }
-                        </MudSelect>
+                        </MudSelect> *@
                         @* <label for="countries"></label>
                         <select @bind="@SelectedCountryCode" style="width:100%;color:grey" class="p-2 border-1 rounded-1" name="countries" id="country-code">
                             @foreach (var country in CountryCodes.CountryCodesList)
@@ -118,7 +128,8 @@
                 </MudItem>
                 <MudItem xs="12">
                     <div class="form-group">
-                        <MudTextField Required=true Label="Postal Code" id="postal-code" class="form-control" @bind-Value="@_subRequest.PostalCode"></MudTextField>
+                        @* <MudTextField Required=true Label="Postal Code" id="postal-code" class="form-control" @bind-Value="@_subRequest.PostalCode"></MudTextField> *@
+                        <TextInputComponent @bind-Text="_subRequest.PostalCode" PlaceHolder="Postal Code" Required="true" Id="postal-code" Class="form-control" />
                     </div>
                     <ValidationMessage For="@(() => _subRequest.PostalCode)" />
                 </MudItem>
@@ -126,34 +137,29 @@
         </ChildContent>
     </EditForm>
     
-    <MudGrid>
-        <MudSpacer />
-        @if (ShowSpinner)
-        {
-            <MudItem Style="width:30%">
-                <div class="width:100%">
-                    <button style="margin-top: 30px; width:100%" class="btn btn-primary">
-                        <MudProgressCircular Size=MudBlazor.Size.Small Color="MudBlazor.Color.Info" Indeterminate="true" />
-                    </button>
-                </div>
-            </MudItem>
-            
-        }
-        else
-        {
-            <MudItem Style="width:30%">
-                <div class="width:100%">
-                    <button @onclick="ProcessPaymentAsync" style="margin-top: 30px; width:100%" class="btn btn-primary">Pay</button>
-                </div>
-            </MudItem>
-        }
-    </MudGrid>
+    <div class="row" style="justify-content: center">
+        @* <button @onclick="ProcessPaymentAsync" style="width:400px;height:40px;border-radius:50px" class="btn btn-primary">Pay</button> *@
+        <MudButton Style="width:400px;height:40px;border-radius:50px;" Variant="MudBlazor.Variant.Filled" Color="MudBlazor.Color.Primary" Class="m-auto mt-10" OnClick="@ProcessPaymentAsync">
+            @if (ShowSpinner)
+            {
+                <MudProgressCircular Size=MudBlazor.Size.Small Color="MudBlazor.Color.Info" Indeterminate="true" />
+            }
+            else
+            {
+                <MudIcon Icon="@Icons.Material.Filled.Lock" Class="mr-1" />
+                <MudText Class="ml-1">
+                    @($"Pay ${PriceInCents/100}.00")
+                </MudText>
+            }
+        </MudButton>
+    </div>
     
 </MudContainer>
 
 @code{
     [Parameter] public StripeBillingRequest _subRequest { get; set; }
     [Parameter] public EventCallback<bool> PaymentProcessed { get; set; }
+    [Parameter] public int PriceInCents { get; set; }
 
     protected bool _firstTime;
     private DotNetObjectReference<StripeComponent> _objRef;

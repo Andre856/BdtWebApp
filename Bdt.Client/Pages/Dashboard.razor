@@ -16,12 +16,8 @@
 @using Bdt.Shared.Dtos.WeekDay;
 @using Bdt.Shared.Models.Charts;
 @using Bdt.Shared.Dtos.Workouts;
-@using Bdt.Client.AppServices.Theme;
-@using Bdt.Client.AppServices.Workouts;
-@using Bdt.Client.AppServices.Weekday;
-@using Bdt.Client.AppServices.Planner;
-@using Bdt.Client.AppServices.Levels;
 @using Bdt.Client.AppServices.Dialog;
+@using Bdt.Client.Shared.TextInputs;
 
 @inject IWorkoutService _workoutService
 @inject IPlannerService _plannerService
@@ -29,7 +25,7 @@
 @inject ILevelService _levelService
 @inject IBdtDialogService _dialogService
 @inject NavigationManager _navigation
-@inject             BdtThemeService _themeService
+@inject BdtThemeService _themeService
 
 @if (loading)
 {
@@ -37,7 +33,8 @@
 }
 else
 {
-    <MudContainer Class="mt-5 px-2" MaxWidth="MaxWidth.ExtraExtraLarge">
+    @* MaxWidth = "MaxWidth.ExtraExtraLarge" *@
+    <MudContainer Class="mt-5 px-2" Style="width:95%">
 
         @if (nextWorkout is not null)
         {
@@ -46,21 +43,21 @@ else
             
         <LevelDashboardComponent UserLevel="@userLevel" SixCountLevel="@sixCountLevel" NavySealsLevel="@navySealLevel" />
 
-        <MudSelect Class="mt-7 mb-5" FullWidth=false Required=true Margin="Margin.Dense" T="string" Label="View charts by"
-                   Variant="MudBlazor.Variant.Text" @bind-Value="@selectedViewByValue">
-            @foreach (var viewBy in viewByList)
-            {
-                <MudSelectItem Value=viewBy />
-            }
-        </MudSelect>
+        <div class="row mt-5">
+            <DropdownInputComponent Label="View Charts By" TItem="string" @bind-SelectedItem="@selectedViewByValue" Items="@viewByList" />
+        </div>
 
         @* <BurpeeChart ViewBy="@SelectedViewByValue" Title="6 Count" Data="SixCount" SeriesName="6 Count" VisibleGridlines=true PersonalBest="@SixCountPb" />
 
         <BurpeeChart ViewBy="@SelectedViewByValue" Title="Navy Seal" Data="NavySeals" SeriesName="Navy Seals" VisibleGridlines=true PersonalBest="@NavySealPb" /> *@
 
-        <BurpeeChart2 ViewBy="@selectedViewByValue" Title="Burpees" Data="userWorkouts" />
+        <div class="row mt-5">
+            <BurpeeChart2 ViewBy="@selectedViewByValue" Title="Burpees" Data="userWorkouts" />
+        </div>
 
-        <PushupChart ViewBy="@selectedViewByValue" Title="Total Pushups" Data="userWorkouts" />
+        <div class="row mt-5 mb-10">
+            <PushupChart ViewBy="@selectedViewByValue" Title="Total Pushups" Data="userWorkouts" />
+        </div>
 
     </MudContainer>
 }

@@ -1,0 +1,37 @@
+﻿<style>
+    .mud-input.mud-input-outlined .mud-input-outlined-border {
+        border-radius: 50px;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<MudTextField T="string"
+              id="@Id"
+              class="@Class"
+              ValueChanged="OnTextChanged"
+              Placeholder="@PlaceHolder"
+              Value="Text"
+              Variant="MudBlazor.Variant.Outlined"
+              Style="height:40px"
+              Adornment="Adornment"
+              AdornmentIcon="@AdornmentIcon"
+              Required="Required"
+              RequiredError="@string.Empty" />
+
+@code {
+    [Parameter] public string Text { get; set; } = string.Empty;
+    [Parameter] public string PlaceHolder { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> TextChanged { get; set; }
+    [Parameter] public Adornment Adornment { get; set; } = Adornment.Start;
+    [Parameter] public string? AdornmentIcon { get; set; } = null;
+    [Parameter] public bool Required { get; set; } = false;
+    [Parameter] public string Id { get; set; } = string.Empty;
+    [Parameter] public string Class { get; set; } = string.Empty;
+
+    private async Task OnTextChanged(string value)
+    {
+        Text = value;
+        await TextChanged.InvokeAsync(value);
+    }
+}

@@ -1,0 +1,32 @@
+﻿@using System.ComponentModel.DataAnnotations
+
+<style>
+    .mud-input.mud-input-outlined .mud-input-outlined-border {
+        border-radius: 50px;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<MudTextField T="string"
+              ValueChanged="OnEmailChanged"
+              Placeholder="Email" 
+              Value="Email"
+              Variant="MudBlazor.Variant.Outlined"
+              Style="height:40px"
+              Adornment="Adornment.Start"
+              AdornmentIcon="@Icons.Material.Outlined.Email"
+              Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})"
+              Required="true"
+              RequiredError="@string.Empty" />
+
+@code {
+    [Parameter] public string Email { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> EmailChanged { get; set; }
+
+    private async Task OnEmailChanged(string value)
+    {
+        Email = value;
+        await EmailChanged.InvokeAsync(value);
+    }
+}

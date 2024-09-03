@@ -6,11 +6,9 @@
 @using Bdt.Client.AppServices.Claims
 @using Bdt.Client.AppServices.Theme;
 @using Bdt.Client.Shared.Dialogs
+@using Bdt.Client.Shared.TextInputs
 @using Bdt.Shared.Dtos.Users;
-@using Bdt.Client.AppServices.Theme;
 @using Bdt.Client.AppServices.Dialog;
-@using Bdt.Client.AppServices.App;
-@using Bdt.Client.AppServices.Claims;
 
 @inject IAppService _appService
 @inject IDialogService _dialogService
@@ -19,7 +17,7 @@
 @inject NavigationManager _navigation
 @inject BdtThemeService _themeService
 
-<MudGrid>
+<MudContainer Style="height:80vh;width:100%" Class="mt-2">
     <MudItem xs="12" sm="7">
         <MudContainer Class="pa-4">
             @if (isDarkTheme)
@@ -30,25 +28,33 @@
             {
                 <MudImage Src="images/busy_dad_black_logo_medium.png" Alt="Busy Dad Training" Style="width:100%" Class="mt-2 mb-5" />
             }
-            <MudForm @bind-IsValid="@Success" @bind-Errors="@Errors">
-                <MudTextField T="string" Label="Username" Required="true" RequiredError="User name is required!" @bind-Value="Username" />
-                <MudTextField T="string" Label="Email" Required="true" RequiredError="Email is required!" @bind-Value="Email"
-                              Validation="@(new EmailAddressAttribute() {ErrorMessage = "Email address is invalid"})" />
-                <MudTextField T="string" Label="Password" HelperText="Choose a strong password" @bind-Value="Password"
-                              InputType="InputType.Password"
-                              Validation="@(new Func<string, IEnumerable<string>>(PasswordStrength))" Required="true"
-                              RequiredError="Password is required!" />
-                <MudTextField T="string"
-                              Label="Password" HelperText="Repeat the password" InputType="InputType.Password"
-                              Validation="@(new Func<string, string>(PasswordMatch))" />
+            
+            <div class="row">
+                <MudText Typo="Typo.h5">Create An Account</MudText>
+            </div>
+            
+            <MudForm @bind-IsValid="@success" @bind-Errors="@errors" Class="mt-5">
+                <div class="row">
+                    <UsernameInputComponent @bind-Username="username" />
+                </div>
+                <div class="row mt-5">
+                    <EmailInputComponent @bind-Email="email" />
+                </div>
+                <div class="row mt-5">
+                    <PasswordInputComponent @bind-Password="password" />
+                </div>
 
                 <MudContainer Class="pa-4">
                     <MudLink Class="mt-5" OnClick="OpenTsAndCs"><MudText Typo="Typo.caption">Terms and Conditions</MudText></MudLink>
                 </MudContainer>
-                <div class="d-flex align-center justify-space-between">
+
+                <div class="row">
                     <MudCheckBox T="bool" Required="true" RequiredError="You must accept the terms and conditions" Label="Accept terms and conditions" />
-                    <MudButton Variant="MudBlazor.Variant.Filled" Color="MudBlazor.Color.Primary" Disabled="@(!Success)" Class="ml-auto" OnClick="@Submit">
-                        @if (ShowSpinner)
+                </div>
+                
+                <div class="row" style="justify-content: center">
+                    <MudButton Style="width:400px;height:40px;border-radius:50px;" Variant="MudBlazor.Variant.Filled" Color="MudBlazor.Color.Primary" Disabled="@(!success)" Class="m-auto mt-10" OnClick="@Submit">
+                        @if (showSpinner)
                         {
                             <MudProgressCircular Size=MudBlazor.Size.Small Color="MudBlazor.Color.Info" Indeterminate="true" />
                         }
@@ -58,22 +64,23 @@
                         }
                     </MudButton>
                 </div>
+
             </MudForm>
         </MudContainer>
         <MudContainer Class="pa-4">
             <MudLink Href="/"><MudText Typo="Typo.caption">Already have an account?</MudText></MudLink>
         </MudContainer>
     </MudItem>
-</MudGrid>
+</MudContainer>
 
 @code {
-    private bool Success;
-    private string[] Errors = [];
-    private string Password;
-    private string Username;
-    private string Email;
+    private bool success;
+    private string[] errors = [];
+    private string password = string.Empty;
+    private string username = string.Empty;
+    private string email = string.Empty;
 
-    private bool ShowSpinner = false;
+    private bool showSpinner = false;
     private bool isDarkTheme = false;
 
     protected override async Task OnInitializedAsync()
@@ -88,26 +95,26 @@
 
     private async Task Submit()
     {
-        ShowSpinner = true;
+        showSpinner = true;
 
         var registerUserDto = new RegisterUserDto
             {
-                UserName = Username,
-                Email = Email,
-                Password = Password
+                UserName = username,
+                Email = email,
+                Password = password
             };
 
         var response = await _appService.RegisterUser(registerUserDto);
 
         if (response.IsSuccess)
         {
-            ShowSpinner = false;
+            showSpinner = false;
 
-            _navigation.NavigateTo($"/pleaseverifyemail/{Username}/{Email}/{Password}");
+            _navigation.NavigateTo($"/pleaseverifyemail/{username}/{email}/{password}");
         }
         else
         {
-            ShowSpinner = false;
+            showSpinner = false;
             await _dialogService.ShowErrorDialog("Oops!", "Registration has failed, please try again.");
         }
     }
@@ -129,10 +136,10 @@
             yield return "Password must contain at least one digit";
     }
 
-    private string PasswordMatch(string arg)
-    {
-        if (Password != arg)
-            return "Passwords don't match";
-        return null;
-    }
+    // private string PasswordMatch(string arg)
+    // {
+    //     if (Password != arg)
+    //         return "Passwords don't match";
+    //     return null;
+    // }
 }

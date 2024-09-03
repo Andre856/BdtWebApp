@@ -1,0 +1,26 @@
+﻿<style>
+    svg.mud-icon-root.mud-svg-icon.mud-icon-size-large {
+        height: 100% !important;
+        width: 100% !important;
+    }
+</style>
+
+<MudToggleIconButton Class=@($"p-0 {Class}") Style=@($"width:{WidthPx}px;height:{WidthPx}px)") Size="MudBlazor.Size.Large" Icon="@Icon" Color="@Color" ToggledChanged="@OnToggledChanged"
+                     ToggledIcon="@ToggledIcon" ToggledColor="@ToggleColor" Toggled="@Toggled" ToggledSize="MudBlazor.Size.Large" />
+
+@code {
+    [Parameter] public string Class { get; set; } = string.Empty;
+    [Parameter] public int HeightPx { get; set; }
+    [Parameter] public int WidthPx { get; set; }
+    [Parameter] public string Icon { get; set; } = string.Empty;
+    [Parameter] public string ToggledIcon { get; set; } = string.Empty;
+    [Parameter] public MudBlazor.Color Color { get; set; } = MudBlazor.Color.Default;
+    [Parameter] public MudBlazor.Color ToggleColor { get; set; } = MudBlazor.Color.Default;
+    [Parameter] public bool Toggled { get; set; }
+    [Parameter] public EventCallback<bool> ToggledChanged { get; set; }
+
+    private async Task OnToggledChanged()
+    {
+        await ToggledChanged.InvokeAsync(!Toggled);
+    }
+}

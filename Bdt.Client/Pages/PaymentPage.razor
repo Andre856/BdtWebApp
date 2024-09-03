@@ -1,4 +1,4 @@
-﻿@page "/payment/{StripeApiId}"
+﻿@page "/payment/{StripeApiId}/{Price:int}"
 
 @using Bdt.Client.AppServices.App;
 @using Bdt.Client.AppServices.Claims
@@ -7,9 +7,7 @@
 @using Bdt.Client.Shared.Stripe;
 @using Bdt.Shared.Models.StripeModels;
 @using System.Text;
-@using Bdt.Client.AppServices.Stripe;
 @using Bdt.Client.AppServices.Dialog;
-@using Bdt.Client.AppServices.App;
 
 @inject NavigationManager _navigation
 @inject IStripeService _stripeService
@@ -19,12 +17,12 @@
 @if (!SomethingWentWrong)
 {
     <MudCard Class="ml-3 mr-3 p-3">
-        <MudStack Spacing=10 Justify="Justify.Center" Style="align-items: center;" Class="mt-1">
+        <MudStack Spacing=5 Justify="Justify.Center" Style="align-items: center;">
             <MudItem>
-                <MudImage Src="images/busy_dad_black_logo_medium.png" Alt="Busy Dad Training" Style="width:100%" Class="mt-1 mb-2" />
+                <MudImage Src="images/busy_dad_black_logo_medium.png" Alt="Busy Dad Training" Style="width:100%" Class="mt-1" />
             </MudItem>
             <MudItem>
-                <StripeComponent _subRequest="BillingInfo" @ref="StripePaymentBase" PaymentProcessed="SendSubToServerAsync"></StripeComponent>
+                <StripeComponent PriceInCents="Price" _subRequest="BillingInfo" @ref="StripePaymentBase" PaymentProcessed="SendSubToServerAsync"></StripeComponent>
             </MudItem>
         </MudStack>
     </MudCard>
@@ -36,6 +34,7 @@ else
 
 @code{
     [Parameter] public string StripeApiId { get; set; }
+    [Parameter] public int Price { get; set; }
 
     protected StripeBillingRequest BillingInfo;
     protected StripeComponent StripePaymentBase;

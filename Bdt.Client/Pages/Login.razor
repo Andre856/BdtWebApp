@@ -6,16 +6,13 @@
 @using System.Security.Claims;
 @using Bdt.Client.AppServices.Claims
 @using Bdt.Client.Provider
+@using Bdt.Client.Shared.TextInputs
 @using Bdt.Shared.Models.App;
 @using Bdt.Client.AppServices.Theme;
 @using Bdt.Client.Shared.Dialogs;
 @using Bdt.Client.AppServices.App
 @using Bdt.Shared.Dtos.Users;
-@using Bdt.Client.Provider;
-@using Bdt.Client.AppServices.Theme;
 @using Bdt.Client.AppServices.Dialog;
-@using Bdt.Client.AppServices.App;
-@using Bdt.Client.AppServices.Claims;
 
 @inject IAppService _appService
 @inject IBdtDialogService _dialogService
@@ -36,16 +33,25 @@
             {
                 <MudImage Src="images/busy_dad_black_logo_medium.png" Alt="Busy Dad Training" Style="width:100%" Class="mt-5 mb-5" />
             }
-            <MudForm @ref="Form" @bind-IsValid="@Success" @bind-Errors="@Errors">
-                <MudTextField T="string" Label="Email" Required="true" RequiredError="Email is required!" @bind-Value="Email"
-                              Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" />
-                <MudTextField T="string" Label="Password" @bind-Value="Password"
-                              InputType="InputType.Password"
-                              RequiredError="Password is required!" />
-                <MudLink OnClick="ForgotPasswordClicked"><MudText Typo="Typo.caption">Forgot password</MudText></MudLink>
-                <div class="d-flex align-center justify-space-between">
-                    <MudButton Variant="MudBlazor.Variant.Filled" Color="MudBlazor.Color.Primary" Disabled="@(!Success)" Class="ml-auto" OnClick="@Submit">
-                        @if (ShowSpinner)
+
+            <div class="row">
+                <MudText Typo="Typo.h5">Welcome!</MudText>
+            </div>
+
+            <MudForm @ref="form" @bind-Errors="@errors" @bind-IsValid="@success" Class="mt-10">
+
+                <div class="row">
+                    <EmailInputComponent @bind-Email="@email" />
+                </div>
+                <div class="row mt-7">
+                    <PasswordInputComponent @bind-Password="@password" Required="false" />
+                </div>
+
+                <MudLink OnClick="ForgotPasswordClicked"><MudText Typo="Typo.caption">Forgot password?</MudText></MudLink>
+
+                <div class="row" style="justify-content: center">
+                    <MudButton Style="width:400px;height:40px;border-radius:50px;" Variant="MudBlazor.Variant.Filled" Color="MudBlazor.Color.Primary" Disabled="@(!success)" Class="m-auto mt-10" OnClick="@Submit">
+                        @if (showSpinner)
                         {
                             <MudProgressCircular Size=MudBlazor.Size.Small Color="MudBlazor.Color.Info" Indeterminate="true" />
                         }
@@ -64,13 +70,13 @@
 </MudContainer>
 
 @code {
-    private bool Success;
-    private string[] Errors = [];
-    private string Password;
-    private string Email;
-    private MudForm Form;
+    private bool success;
+    private string[] errors = [];
+    private string password = string.Empty;
+    private string email = string.Empty;
+    private MudForm form;
 
-    private bool ShowSpinner = false;
+    private bool showSpinner = false;
     private bool isDark = false;
 
     protected override async Task OnInitializedAsync()
@@ -80,26 +86,26 @@
 
     private async Task ForgotPasswordClicked()
     {
-        var email = await _dialogService.ResetPasswordDialog(Email);
+        var email = await _dialogService.ResetPasswordDialog(this.email);
 
         _navigation.NavigateTo($"/forgotpassword/{email}");
     }
 
     private async Task Submit()
     {
-        ShowSpinner = true;
+        showSpinner = true;
 
         var authenticateUserDto = new AuthenticateUserDto
             {
-                Email = Email,
-                Password = Password
+                Email = email,
+                Password = password
             };
 
         var response = await _appService.AuthenticateUser(authenticateUserDto);
 
         if (!response.IsSuccess)
         {
-            ShowSpinner = false;
+            showSpinner = false;
 
             if (response.ErrorMessage.Equals("Email not authorized."))
                 _navigation.NavigateTo($"/pleaseverifyemail/{authenticateUserDto.Email}/{authenticateUserDto.Email}/{authenticateUserDto.Password}");
@@ -115,7 +121,7 @@
 
             if (authState.User.Identity.IsAuthenticated)
             {
-                ShowSpinner = false;
+                showSpinner = false;
 
                 var isFirstLogin = await _claimService.IsFirstLogin();
 

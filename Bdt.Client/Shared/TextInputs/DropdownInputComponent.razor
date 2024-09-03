@@ -1,0 +1,42 @@
+﻿@typeparam TItem
+
+<style>
+    .mud-input.mud-input-outlined .mud-input-outlined-border {
+        border-radius: 50px;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<MudSelect Class=@($"{Class}") @bind-Value="SelectedItem" SelectedValuesChanged="OnSelectedValuesChanged" Required="Required" Margin="Margin.Dense" T="TItem" Label="@Label" Variant="MudBlazor.Variant.Outlined">
+    @foreach (var item in Items)
+    {
+        <MudSelectItem T="TItem" Value="item">@GetItemDisplay(item)</MudSelectItem>
+    }
+</MudSelect>
+
+@code {
+    [Parameter] public required List<TItem> Items { get; set; }
+    [Parameter] public required TItem SelectedItem { get; set; }
+    [Parameter] public EventCallback<TItem> SelectedItemChanged { get; set; }
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public Func<TItem, string> GetDisplayValue { get; set; }
+    [Parameter] public bool Required { get; set; } = false;
+    [Parameter] public string Id { get; set; } = string.Empty;
+    [Parameter] public string Class { get; set; } = string.Empty;
+
+    private string GetItemDisplay(TItem item)
+    {
+        if (item is string)
+        {
+            return item as string;
+        }
+
+        return GetDisplayValue != null ? GetDisplayValue(item) : item.ToString();
+    }
+
+    private async Task OnSelectedValuesChanged()
+    {
+        await SelectedItemChanged.InvokeAsync(SelectedItem);
+    }
+}

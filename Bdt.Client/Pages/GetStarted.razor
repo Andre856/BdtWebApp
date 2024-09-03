@@ -2,22 +2,25 @@
 
 @inject NavigationManager _navigation
 
-<MudContainer Style="height:80vh;width:100%" Class="mt-16">
+<MudContainer Class="h-100" Style="display: flex; flex-direction: column; justify-content: space-between; align-items: center;">
     <MudStack Spacing=10 Justify="Justify.Center" Style="align-items: center;" Class="mt-8">
         <MudItem>
             <MudImage Src="images/busy_dad_black_logo_medium.png" Alt="Busy Dad Training" Style="width:100%" Class="mt-5 mb-5" />
         </MudItem>
-        <MudSpacer />
-        <MudItem Style="width:75%;margin-top:60%;">
-            <MudButton IconSize="MudBlazor.Size.Large" EndIcon="@Icons.Material.Outlined.ArrowForwardIos" Class="mt-5"
-                       Style="width:100%;border-radius:50px;background-image:linear-gradient(to left, rgba(33,150,243,1), rgba(240,240,240,1))" OnClick="GoToPricing">
-                <MudContainer>
-                    <MudText Typo="Typo.body1"><b>GET STARTED</b></MudText>
-                </MudContainer>
-            </MudButton>
-        </MudItem>
+    <MudSpacer />
+    <MudItem Style="width:75%;">
+        <MudButton IconSize="MudBlazor.Size.Large" EndIcon="@Icons.Material.Outlined.ArrowForwardIos"
+                   Class="mt-5" Style="width:100%;border-radius:50px;background-image:linear-gradient(to left, rgba(33,150,243,1), rgba(240,240,240,1))"
+                   OnClick="GoToPricing">
+            <MudContainer>
+                <MudText Typo="Typo.body1"><b>GET STARTED</b></MudText>
+            </MudContainer>
+        </MudButton>
+    </MudItem>
+
     </MudStack>
 </MudContainer>
+
 
 @code {
     private void GoToPricing()

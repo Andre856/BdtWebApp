@@ -49,7 +49,7 @@
                             </MudList>
                         </MudCardContent>
                         <MudCardActions Class="d-flex justify-center">
-                            <MudButton Variant="MudBlazor.Variant.Filled" Color="MudBlazor.Color.Primary" Size="MudBlazor.Size.Large" Style="width:50%;" OnClick="@(() => OnClickBtnBuyNowAsync(product))">Start Now</MudButton>
+                            <MudButton Variant="MudBlazor.Variant.Filled" Color="MudBlazor.Color.Primary" Size="MudBlazor.Size.Large" Style="width:50%;border-radius:50px" OnClick="@(() => OnClickBtnBuyNowAsync(product))">Start Now</MudButton>
                         </MudCardActions>
                     </MudCard>
                 </MudItem>
@@ -88,11 +88,11 @@ else
     {
         if (Globals.Environment == Bdt.Shared.Enums.EnvironmentEnums.Devevelopment)
         {
-            _navigation.NavigateTo($"/payment/{bdtProductDto.StripeTestApiId}");
+            _navigation.NavigateTo($"/payment/{bdtProductDto.StripeTestApiId}/{bdtProductDto.Price}");
         }
         else
         {
-            _navigation.NavigateTo($"/payment/{bdtProductDto.StripeProdApiId}");
+            _navigation.NavigateTo($"/payment/{bdtProductDto.StripeProdApiId}/{bdtProductDto.Price}");
         }
     }
 }

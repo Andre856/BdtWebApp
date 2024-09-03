@@ -1,0 +1,18 @@
+﻿<style>
+    svg.mud-icon-root.mud-svg-icon.mud-icon-size-large {
+
+        height: 100% !important;
+        width: 100% !important;
+    }
+</style>
+
+<MudIconButton Class=@($"p-0 {Class}") Size="MudBlazor.Size.Large" Style=@($"width:{WidthPx}px;height:{WidthPx}px)") Icon="@Icon" Color="@MudBlazor.Color.Error" OnClick="@OnClick" />
+
+@code {
+    [Parameter] public string Icon { get; set; } = string.Empty;
+    [Parameter] public string Class { get; set; } = string.Empty;
+    [Parameter] public MudBlazor.Color Color { get; set; } = MudBlazor.Color.Default;
+    [Parameter] public EventCallback OnClick { get; set; }
+    [Parameter] public int HeightPx { get; set; }
+    [Parameter] public int WidthPx { get; set; }
+}

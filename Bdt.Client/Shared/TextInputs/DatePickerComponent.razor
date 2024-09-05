@@ -6,16 +6,17 @@
     }
 </style>
 
-<MudDatePicker Class="@Class" 
+<MudDatePicker DateChanged="@OnDateChange" 
+               Class="@Class" 
                Variant="MudBlazor.Variant.Outlined" 
                Date="@Date" />
 
 @code {
     [Parameter] public string Class { get; set; } = string.Empty;
-    [Parameter] public required DateTime Date { get; set; }
-    [Parameter] public EventCallback<DateTime> DateChanged { get; set; }
+    [Parameter] public DateTime? Date { get; set; }
+    [Parameter] public EventCallback<DateTime?> DateChanged { get; set; }
 
-    private async Task OnDateChange(DateTime value)
+    private async Task OnDateChange(DateTime? value)
     {
         Date = value;
         await DateChanged.InvokeAsync(value);

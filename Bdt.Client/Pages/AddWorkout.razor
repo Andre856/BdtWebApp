@@ -29,7 +29,7 @@ else
 
             <MudText Class="mb-5" Align="MudBlazor.Align.Center" Typo="Typo.h6">WORKOUT COMPLETE!</MudText>
 
-            <DatePickerComponent Class="mb-3" @bind-Date="workoutDate" />
+            <DatePickerComponent Class="mb-3" @bind-Date="@workoutDate" />
 
             <DropdownInputComponent Class="mb-3" TItem="string" Label="Workout" @bind-SelectedItem="selectedBurpeeType" Items=@(workoutTypes.Select(x => x.Name).ToList()) />
             
@@ -94,7 +94,7 @@ else
     private IEnumerable<WorkoutTypeDto> workoutTypes = [];
     private IEnumerable<WorkoutTypeDto> accessoryWorkoutTypes = [];
     private IEnumerable<LevelDto> Levels = [];
-    private DateTime workoutDate = DateTime.Now;
+    private DateTime? workoutDate = DateTime.Now;
     private string workoutComment = string.Empty;
     private string selectedBurpeeType = string.Empty;
     private int numberOfBurpees;

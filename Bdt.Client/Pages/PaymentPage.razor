@@ -1,4 +1,5 @@
 ﻿@page "/payment/{StripeApiId}/{Price:int}"
+@attribute [Authorize]
 
 @using Bdt.Client.AppServices.App;
 @using Bdt.Client.AppServices.Claims

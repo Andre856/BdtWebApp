@@ -8,7 +8,7 @@ public interface IBdtDialogService
     Task ShowErrorDialog(string title, string dialogText);
     Task ShowAlertDialog(string title, string dialogText);
     Task ShowSucessDialog(string title, string dialogText);
-    Task<string> ResetPasswordDialog(string email);
+    Task<string?> ResetPasswordDialog(string email);
     Task<bool> DeleteWorkoutDialog(string title = "Delete Workout");
     Task<bool> CancelWorkoutDialog(string title = "Cancel Workout");
     Task<bool> CompleteWorkoutDialog(string title = "Complete Workout");

@@ -16,6 +16,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Web;
 
 namespace Bdt.Api.Controllers.v1;
 
@@ -420,18 +421,62 @@ public class UsersController : ControllerBase
     [HttpPost("ForgotPassword")]
     public async Task<IActionResult> ForgotPassword(ForgotPasswordModel forgotPasswordModel)
     {
-        var user = await _userManager.FindByEmailAsync(forgotPasswordModel.Email);
+        try
+        {
+            var user = await _userManager.FindByEmailAsync(forgotPasswordModel.Email);
 
-        if (user is null)
-            return BadRequest("User could not be found.");
+            if (user is null)
+                return BadRequest("User could not be found.");
 
-        var resetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-        if (string.IsNullOrEmpty(resetPasswordToken))
-            return BadRequest("Error.");
+            var resetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            if (string.IsNullOrEmpty(resetPasswordToken))
+                return BadRequest("Error generating reset token.");
 
-        await _userManager.SetAuthenticationTokenAsync(user, PROVIDER, RESETPASSWORD, resetPasswordToken);
+            // URL Encode the token
+            var encodedToken = HttpUtility.UrlEncode(resetPasswordToken);
 
-        return Ok(resetPasswordToken);
+            // Generate a URL with the token for the user to reset their password
+            //var websiteBaseUrl = "https://localhost:7114";
+            var websiteBaseUrl = "https://purple-river-0804f4b0f.5.azurestaticapps.net";
+            var resetPasswordUrl = $"{websiteBaseUrl}/forgotpassword/{user.Email}/{encodedToken}";
+
+            // Prepare email content
+            var emailHtml = $"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8" />
+                <title>Reset Your Password</title>
+            </head>
+            <body>
+                <img src="{websiteBaseUrl}/images/busy_dad_black_logo_medium.png" alt="Busy Dad Training" />
+                <p>Hi {user.UserName},</p>
+                <p>You requested to reset your password. Click the link below to reset it:</p>
+                <a href="{resetPasswordUrl}">Reset Password</a>
+                <p>If you did not request this, please ignore this email.</p>
+            </body>
+            </html>
+        """;
+
+            // Create and send the email
+            var emailDto = new EmailDto
+            {
+                To = user.Email,
+                Subject = "Reset Password Request",
+                Body = emailHtml
+            };
+
+            var emailSent = _emailService.SendEmail(emailDto);
+
+            if (emailSent)
+                return Ok("Reset password link sent to your email.");
+
+            return BadRequest("Error sending reset password email.");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Could not send reset password link: {ex.Message}");
+        }
     }
 
     [AllowAnonymous]

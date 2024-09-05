@@ -90,9 +90,8 @@ public class AppService : IAppService
     public async Task<ApiWrapper<string>> ResetPassword(ResetPasswordModel resetPasswordModel)
     {
         var httpClient = _httpClientFactory.CreateClient("NoAuthBdtApi");
-        var serialisedString = JsonConvert.SerializeObject(resetPasswordModel);
 
-        var response = await httpClient.PostAsync("v1/Users/ResetPassword", new StringContent(serialisedString, Encoding.UTF8, "application/json"));
+        var response = await httpClient.PostAsJsonAsync("v1/Users/ResetPassword", resetPasswordModel);
 
         if (response.IsSuccessStatusCode)
         {
@@ -112,15 +111,13 @@ public class AppService : IAppService
             Email = email
         };
 
-        var serialisedString = JsonConvert.SerializeObject(forgotPasswordModel);
-
-        var response = await httpClient.PostAsync("v1/Users/ForgotPassword", new StringContent(serialisedString, Encoding.UTF8, "application/json"));
+        var response = await httpClient.PostAsJsonAsync("v1/Users/ForgotPassword", forgotPasswordModel);
 
         if (response.IsSuccessStatusCode)
         {
-            string resetPasswordToken = await response.Content.ReadAsStringAsync();
+            string responseString = await response.Content.ReadAsStringAsync();
 
-            return ApiWrapper<string>.Success(resetPasswordToken);
+            return ApiWrapper<string>.Success(responseString);
         }
 
         return ApiWrapper<string>.Failed("Failed to reset password.");

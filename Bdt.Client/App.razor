@@ -1,22 +1,27 @@
 ﻿@using Bdt.Client.Layout
+@using Microsoft.AspNetCore.Components.Authorization
 
 @inject NavigationManager _navigation
 
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+            <Authorizing>
+                @* Add proper loading pages here *@
+                <p>Authorizing...</p>
+            </Authorizing>
+            <NotAuthorized>
+                @* Add proper message here *@
+                <p>You are not authorized to view this page. Redirecting to login...</p>
+                
+            </NotAuthorized>
+        </AuthorizeRouteView>
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
     <NotFound>
-        @code {
-            protected override void OnInitialized()
-            {
-                _navigation.NavigateTo("/");
-            }
-        }
-        @* <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
-        </LayoutView> *@
+        <h1>Page Not Found</h1>
+        <p>Sorry, the page you requested could not be found.</p>
+        <MudButton OnClick="@(() => _navigation.NavigateTo("/"))">Go to Home</MudButton>
     </NotFound>
 </Router>
+

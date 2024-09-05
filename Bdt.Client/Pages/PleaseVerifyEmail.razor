@@ -1,9 +1,9 @@
 ﻿@page "/pleaseverifyemail/{Username}/{Email}/{Password}"
+@attribute [AllowAnonymous]
 
 @using Bdt.Client.AppServices.App;
 @using Bdt.Shared.Dtos.Users;
 @using Bdt.Client.AppServices.Dialog;
-@using Bdt.Client.AppServices.App;
 
 @inject IAppService _appService
 @inject IBdtDialogService _dialogService

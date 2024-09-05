@@ -1,4 +1,5 @@
 ﻿@page "/login"
+@attribute [AllowAnonymous]
 
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
@@ -41,7 +42,7 @@
             <MudForm @ref="form" @bind-Errors="@errors" @bind-IsValid="@success" Class="mt-10">
 
                 <div class="row">
-                    <EmailInputComponent @bind-Email="@email" />
+                    <EmailInputComponent @bind-Email="@emailAddress" />
                 </div>
                 <div class="row mt-7">
                     <PasswordInputComponent @bind-Password="@password" Required="false" />
@@ -73,7 +74,7 @@
     private bool success;
     private string[] errors = [];
     private string password = string.Empty;
-    private string email = string.Empty;
+    private string emailAddress = string.Empty;
     private MudForm form;
 
     private bool showSpinner = false;
@@ -86,9 +87,21 @@
 
     private async Task ForgotPasswordClicked()
     {
-        var email = await _dialogService.ResetPasswordDialog(this.email);
+        var email = await _dialogService.ResetPasswordDialog(emailAddress);
 
-        _navigation.NavigateTo($"/forgotpassword/{email}");
+        if (string.IsNullOrEmpty(email))
+            return;
+
+        var response = await _appService.ForgotPassword(email);
+        if (response.IsSuccess)
+        {
+            await _dialogService.ShowErrorDialog("Password Reset Request", $"Please follow the link that was emailed to {email} to reset your password.");
+        }
+        else
+        {
+            await _dialogService.ShowErrorDialog("Oops!", $"Failed to reset password. Please make sure you provided the correct email address and try again.");
+            _navigation.NavigateTo("/login");
+        }
     }
 
     private async Task Submit()
@@ -97,7 +110,7 @@
 
         var authenticateUserDto = new AuthenticateUserDto
             {
-                Email = email,
+                Email = emailAddress,
                 Password = password
             };
 

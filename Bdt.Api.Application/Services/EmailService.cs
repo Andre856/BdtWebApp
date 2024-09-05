@@ -21,7 +21,7 @@ public class EmailService : IEmailService
         try
         {
             var user = _configuration.GetSection("EmailUsername").Value ??
-            throw new Exception("Email config error.");
+                throw new Exception("Email config error.");
             var port = _configuration.GetSection("EmailPort").Value ??
                 throw new Exception("Email config error.");
             var host = _configuration.GetSection("EmailHost").Value ??

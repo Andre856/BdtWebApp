@@ -79,14 +79,6 @@ else
 
         // Subscribe to authentication state changes
         _authStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
-
-        // MyCustomTheme.Typography = new Typography()
-        //     {
-        //         Default = new Default()
-        //         {
-        //             FontFamily = new[] { "Oswald", "Helvetica", "Arial", "sans-serif" }
-        //         }
-        //     };
     }
 
     private async void OnAuthenticationStateChanged(Task<AuthenticationState> task)

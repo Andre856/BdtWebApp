@@ -1,4 +1,5 @@
 ﻿@page "/register"
+@attribute [AllowAnonymous]
 
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
@@ -68,7 +69,7 @@
             </MudForm>
         </MudContainer>
         <MudContainer Class="pa-4">
-            <MudLink Href="/"><MudText Typo="Typo.caption">Already have an account?</MudText></MudLink>
+            <MudLink Href="/login"><MudText Typo="Typo.caption">Already have an account?</MudText></MudLink>
         </MudContainer>
     </MudItem>
 </MudContainer>

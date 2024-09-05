@@ -43,12 +43,14 @@ public class BdtDialogService : IBdtDialogService
         await dialog.Result;
     }
 
-    public async Task<string> ResetPasswordDialog(string email)
+    public async Task<string?> ResetPasswordDialog(string email)
     {
         var parameters = new DialogParameters { { "Email", email } };
         var dialogResponse = await _dialogService.ShowAsync<ResetPasswordDialog>("Next Workout", parameters);
 
-        return await dialogResponse.GetReturnValueAsync<string>();
+        var dialogResult = await dialogResponse.GetReturnValueAsync<string>();
+
+        return dialogResult;
     }
 
     public async Task<bool> DeleteWorkoutDialog(string title = "Delete Workout")

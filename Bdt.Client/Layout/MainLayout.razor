@@ -12,14 +12,38 @@
 @inject CustomAuthStateProvider _authStateProvider
 @inject BdtThemeService _themeService
 
-<MudThemeProvider Theme="MyCustomTheme" IsDarkMode="@isDarkTheme" />
+<MudThemeProvider Theme="@MyCustomTheme" IsDarkMode="@isDarkTheme" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 @if (isAuthenticated && !isFirstLogin)
 {
     <MudLayout>
-
+    @if (isMobile)
+    {
+        <MudAppBar Class="justify-end">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+            <MudSpacer />
+            <MudImage Src="images/max_only_white_small.png" Alt="Busy Dad Training" Height="100" />
+            <MudSpacer />
+            <MudSwitch T="bool" Value="@isDarkTheme" ValueChanged="@ToggleTheme" Style="margin:0" ThumbIcon="@Icons.Material.Filled.LightMode" Size="MudBlazor.Size.Medium" Color="MudBlazor.Color.Primary"></MudSwitch>
+        </MudAppBar>
+            <MudAppBar Class="justify-center" Bottom="true">
+            <MudNavLink Style="display:flex;justify-content:center;align-items:center" Href="/" Match="NavLinkMatch.All"  Icon="@Icons.Material.Filled.BarChart" />
+            <MudSpacer />
+            @* <MudNavLink Class="mt-4" Href="/intervaltimer" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AvTimer">Timer</MudNavLink> *@
+            <MudNavLink Href="/planner" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EditCalendar" />
+            <MudSpacer />
+            <MudNavLink Href="/addworkout/0" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AddCircle" />
+            <MudSpacer />
+            <MudNavLink Href="/history" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.TableView" />
+        </MudAppBar>
+        <MudDrawer @bind-Open="@DrawerIsOpen">
+            <NavMenu />
+        </MudDrawer>
+    }
+    else
+    {
         <MudAppBar Class="justify-end">
             <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
             <MudSpacer />
@@ -30,11 +54,13 @@
         <MudDrawer @bind-Open="@DrawerIsOpen">
             <NavMenu />
         </MudDrawer>
-
+    }
         <MudMainContent>
             @Body
         </MudMainContent>
+
     </MudLayout>
+    
 }
 else
 {
@@ -46,8 +72,13 @@ else
     private bool isAuthenticated;
     private bool isFirstLogin = false;
     private bool isDarkTheme = false;
+    private bool isMobile = true;
     private MudTheme MyCustomTheme = new MudTheme
     {
+        PaletteLight = new PaletteLight()
+        {
+            AppbarBackground = "rgba(39,39,47,1)"
+        },
         Typography = new()
         {
             Default = new Default()

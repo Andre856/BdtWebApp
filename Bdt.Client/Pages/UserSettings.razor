@@ -3,25 +3,38 @@
 
 @using Bdt.Client.AppServices.App
 @using Bdt.Client.AppServices.Stripe
+@using Bdt.Client.Provider
 @using Bdt.Client.Shared.Dialogs
 @using Bdt.Shared.Dtos.Stripe;
-@using Bdt.Client.AppServices.Stripe
 
 @inject IStripeService _stripeService
 @inject IAppService _appService
 @inject IBdtDialogService _dialogService
+@inject CustomAuthStateProvider _authStateProvider
 @inject NavigationManager _navigation
 
 @if (Loading)
 {
     <PageLoading />
 }
+else if (!Loading && Subscription is null)
+{
+    <MudCard Style="height:90vh">
+        <MudStack Class="ml-5 mr-5">
+            <MudText Class="mt-5 mb-5" Typo="Typo.body1" Align="MudBlazor.Align.Center">ACCOUNT SETTINGS</MudText>
+            <MudText Align="MudBlazor.Align.Left">You do not currently have a subscription.</MudText>
+
+            <MudText Class="mt-5" Align="MudBlazor.Align.Left"><b>Delete Account</b></MudText>
+            <MudButton Variant="MudBlazor.Variant.Filled" Color="MudBlazor.Color.Error" OnClick="DeleteUserAccount">Delete Account</MudButton>
+        </MudStack>
+    </MudCard>
+}
 else
 {
     <MudCard Style="height:90vh">
         <MudStack Class="ml-5 mr-5">
             <MudText Class="mt-5 mb-5" Typo="Typo.body1" Align="MudBlazor.Align.Center">ACCOUNT SETTINGS</MudText>
-            <MudTextField Disabled="true" T="string" Label="Subscription Start Date" Class="mb-3" Variant="MudBlazor.Variant.Filled" Text="@Subscription.CurrentPeriodStart.ToString()" />
+            <MudTextField Disabled="true" T="string" Label="Subscription Start Date" Class="mb-3" Variant="MudBlazor.Variant.Filled" Text="@Subscription!.CurrentPeriodStart.ToString()" />
             <MudTextField Disabled="true" T="string" Label="Next Biling Date" Class="mb-3" Variant="MudBlazor.Variant.Filled" Text="@Subscription.CurrentPeriodEnd.ToString()" />
             <MudText Align="MudBlazor.Align.Left">Your subscription is currently <b>@(Subscription.IsActive ? "active." : "deactivated.")</b></MudText>
             <MudText Align="MudBlazor.Align.Left">Your subscription <b>@(Subscription.CancellationRequested ? "will not." : "will")</b> be renewed.</MudText>
@@ -39,7 +52,7 @@ else
 
 @code {
     private bool Loading = true;
-    private SubscriptionsDto Subscription;
+    private SubscriptionsDto? Subscription;
 
     protected override async Task OnInitializedAsync()
     {
@@ -51,7 +64,7 @@ else
         var response = await _stripeService.GetUserSubscription();
         if (!response.IsSuccess)
         {
-            await _dialogService.ShowErrorDialog("Oops!", "There was an issue trying to get your data, please try again.");
+            await _dialogService.ShowErrorDialog("Oops!", "There was an issue attempting to get your data, please try again.");
             _navigation.NavigateTo("/dashboard");
         }
 
@@ -94,7 +107,7 @@ else
         {
             if (!isAccountDelete)
             {
-                await _dialogService.ShowSucessDialog("Success!", $"Your subscription has been cancelled. You can continue to use the app until {Subscription.CurrentPeriodEnd}");
+                await _dialogService.ShowSucessDialog("Success!", $"Your subscription has been cancelled. You can continue to log in until {Subscription.CurrentPeriodEnd}");
             }
 
             await GetUserSubscription();
@@ -115,6 +128,8 @@ else
         if (accountDeleted.IsSuccess)
         {
             await _dialogService.ShowAlertDialog("Account Deleted", $"Your account has been deleted.");
+
+            await _authStateProvider.MarkUserAsLoggedOutAsync();
 
             _navigation.NavigateTo("/login");
         }

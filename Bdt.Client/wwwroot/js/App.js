@@ -8,5 +8,13 @@ function getItem(key, value) {
 }
 
 function removeItem(key, value) {
-    removeItem.removeItem(key, value);
+    localStorage.removeItem(key, value);
 }
+
+function detectMobile() {
+    if (window.innerWidth <= 800) {
+        return true;
+    } else {
+        return false;
+    }
+};

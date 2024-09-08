@@ -7,10 +7,11 @@
 
 @inherits LayoutComponentBase
 @inject NavigationManager _navigation
-@inject IAppService _appService
-@inject IClaimService _claimService
 @inject CustomAuthStateProvider _authStateProvider
 @inject BdtThemeService _themeService
+@inject IAppService _appService
+@inject IClaimService _claimService
+@inject IJSRuntime _jsRuntime
 
 <MudThemeProvider Theme="@MyCustomTheme" IsDarkMode="@isDarkTheme" />
 <MudPopoverProvider />
@@ -61,7 +62,6 @@
         </MudMainContent>
 
     </MudLayout>
-    
 }
 else
 {
@@ -89,6 +89,15 @@ else
                 }
         }
     };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isMobile = await _jsRuntime.InvokeAsync<bool>("detectMobile");
+            StateHasChanged(); // Re-render the component
+        }
+    }
 
     private async Task ToggleTheme()
     {

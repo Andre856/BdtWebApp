@@ -29,14 +29,15 @@
             <MudSwitch T="bool" Value="@isDarkTheme" ValueChanged="@ToggleTheme" Style="margin:0" ThumbIcon="@Icons.Material.Filled.LightMode" Size="MudBlazor.Size.Medium" Color="MudBlazor.Color.Primary"></MudSwitch>
         </MudAppBar>
             <MudAppBar Class="justify-center" Bottom="true">
-            <MudNavLink Style="display:flex;justify-content:center;align-items:center" Href="/" Match="NavLinkMatch.All"  Icon="@Icons.Material.Filled.BarChart" />
+            <MudIconButton Style="display:flex;justify-content:center;align-items:center;color:white" Href="/" Icon="@Icons.Material.Filled.BarChart" />
+           
             <MudSpacer />
             @* <MudNavLink Class="mt-4" Href="/intervaltimer" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AvTimer">Timer</MudNavLink> *@
-            <MudNavLink Href="/planner" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EditCalendar" />
+            <MudIconButton Style="color:white" Href="/planner" Icon="@Icons.Material.Filled.EditCalendar" />
             <MudSpacer />
-            <MudNavLink Href="/addworkout/0" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AddCircle" />
+            <MudIconButton Style="color:white" Href="/addworkout/0" Icon="@Icons.Material.Filled.AddCircle" />
             <MudSpacer />
-            <MudNavLink Href="/history" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.TableView" />
+            <MudIconButton Style="color:white" Href="/history" Icon="@Icons.Material.Filled.TableView" />
         </MudAppBar>
         <MudDrawer @bind-Open="@DrawerIsOpen">
             <NavMenu />
@@ -73,6 +74,7 @@ else
     private bool isFirstLogin = false;
     private bool isDarkTheme = false;
     private bool isMobile = true;
+
     private MudTheme MyCustomTheme = new MudTheme
     {
         PaletteLight = new PaletteLight()

@@ -2,6 +2,8 @@
 using Bdt.Api.Application.Services.Interfaces;
 using Bdt.Api.Controllers;
 using Bdt.Api.Domain.Entities;
+using Bdt.Api.Infrastructure.Exceptions.Api;
+using Bdt.Shared.Dtos.Planner;
 using Bdt.Shared.Dtos.Workouts;
 using Bdt.Shared.Dtos.WorkoutValues;
 using Bdt.Shared.Models.App;
@@ -95,9 +97,9 @@ public class WorkoutController : BaseController<Guid, WorkoutEntity, WorkoutDto,
 
             return Ok(ApiWrapper<WorkoutDto>.Success(workoutDto));
         }
-        catch (Exception ex) when (ex is AutoMapperConfigurationException || ex is AutoMapperMappingException)
+        catch (UserFriendlyException ex)
         {
-            var error = ApiWrapper<WorkoutDto>.Failed($"Automapper exception occurred: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<PlannerDto>>.Failed(ex.Message);
 
             return BadRequest(error);
         }

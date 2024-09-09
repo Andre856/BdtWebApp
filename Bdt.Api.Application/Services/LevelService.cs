@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using Bdt.Api.Application.Services.Interfaces;
-using Bdt.Api.Infrastructure.Repositories.Interfaces;
 using Bdt.Api.Domain.Entities;
+using Bdt.Api.Infrastructure.Repositories.Interfaces;
 using Bdt.Shared.Dtos.Levels;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 namespace Bdt.Api.Application.Services
 {
@@ -12,25 +13,32 @@ namespace Bdt.Api.Application.Services
         private const string WorkoutTypeCache = "WorkoutTypeCache";
         private readonly IMemoryCache _cache;
 
-        public LevelService(IReadRepository<int, LevelEntity> repository, IMemoryCache cache, IMapper mapper)
-            : base(repository, mapper)
+        public LevelService(IReadRepository<int, LevelEntity> repository, IMemoryCache cache, IMapper mapper, ILogger<LevelService> logger)
+            : base(repository, mapper, logger)
         {
             _cache = cache;
         }
 
         public override async Task<IEnumerable<LevelDto>> GetAllAsync()
         {
-            if (!_cache.TryGetValue(WorkoutTypeCache, out IEnumerable<LevelEntity>? levels))
+            try
             {
-                levels = await _repository.GetAllAsync()
-                    ?? throw new Exception("Could not get levels from database.");
-                _cache.Set(WorkoutTypeCache, levels, TimeSpan.FromDays(1));
+                if (!_cache.TryGetValue(WorkoutTypeCache, out IEnumerable<LevelEntity>? levels))
+                {
+                    levels = await _repository.GetAllAsync()
+                        ?? throw new Exception("Could not get levels from database.");
+                    _cache.Set(WorkoutTypeCache, levels, TimeSpan.FromDays(1));
+                }
+
+                if (levels is null)
+                    return Enumerable.Empty<LevelDto>();
+
+                return _mapper.Map<IEnumerable<LevelDto>>(levels);
             }
-
-            if (levels is null)
-                return Enumerable.Empty<LevelDto>();
-
-            return _mapper.Map<IEnumerable<LevelDto>>(levels);
+            catch (Exception ex)
+            {
+                throw BuildExceptionToThrow(ex);
+            }
         }
     }
 }

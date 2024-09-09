@@ -5,6 +5,9 @@ using Bdt.Api.Domain.Entities;
 using Bdt.Shared.Dtos;
 using Bdt.Shared.Enums;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Logging;
+using Bdt.Api.Infrastructure.Exceptions.Api;
+using Bdt.Api.Infrastructure.Exceptions.Database;
 
 namespace Bdt.Api.Application.Services;
 
@@ -14,154 +17,330 @@ public class GenericService<TId, TEntity, TDto> : IGenericService<TId, TEntity, 
 {
     protected readonly IReadRepository<TId, TEntity> _repository;
     protected readonly IMapper _mapper;
+    protected readonly ILogger _logger;
 
-    public GenericService(IReadRepository<TId, TEntity> repository, IMapper mapper)
+    public GenericService(IReadRepository<TId, TEntity> repository, IMapper mapper, ILogger<GenericService<TId, TEntity, TDto>> logger)
     {
         _repository = repository;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public virtual int Count()
     {
-        var count = _repository.Count();
-        return count;
+        try
+        {
+            var count = _repository.Count();
+            return count;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual async Task<int> CountAsync()
     {
-        var count = await _repository.CountAsync();
-        return count;
+        try
+        {
+            var count = await _repository.CountAsync();
+            return count;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual async Task<int> CountByConditionAsync(Expression<Func<TEntity, bool>>[] conditions)
     {
-        var count = await _repository.CountByConditionAsync(conditions);
-        return count;
+        try
+        {
+            var count = await _repository.CountByConditionAsync(conditions);
+            return count;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual IEnumerable<TDto> GetAll()
     {
-        var entities = _repository.GetAll();
-        var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
-        return dtos;
+        try
+        {
+            var entities = _repository.GetAll();
+            var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
+            return dtos;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual async Task<IEnumerable<TDto>> GetAllAsync()
     {
-        var entities = await _repository.GetAllAsync();
-        var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
-        return dtos;
+        try
+        {
+            var entities = await _repository.GetAllAsync();
+            var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
+            return dtos;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual async Task<IEnumerable<TDto>> GetAllAsync(Expression<Func<TEntity, object>>[]? includes = null,
         Expression<Func<TEntity, bool>>[]? conditions = null, Func<TEntity, object>? orderBy = null, OrderByDirectionEnum? orderDirection = null)
     {
-        var entities = await _repository.GetAllAsync(includes, conditions, orderBy, orderDirection);
+        try
+        {
+            var entities = await _repository.GetAllAsync(includes, conditions, orderBy, orderDirection);
 
-        var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
-        return dtos;
+            var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
+            return dtos;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual async Task<IEnumerable<TDto>?> GetAllByExpression(Expression<Func<TEntity, bool>> toCheck)
     {
-        var entities = await _repository.GetAllByExpression(toCheck);
-        var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
-        return dtos;
+        try
+        {
+            var entities = await _repository.GetAllByExpression(toCheck);
+            var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
+            return dtos;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual async Task<IEnumerable<TDto>?> GetAllByExpressionWithIncludes(Expression<Func<TEntity, bool>> toCheck)
     {
-        var entities = await _repository.GetAllByExpressionWithIncludes(toCheck);
-        var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
-        return dtos;
+        try
+        {
+            var entities = await _repository.GetAllByExpressionWithIncludes(toCheck);
+            var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
+            return dtos;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual async Task<IEnumerable<TDto>> GetAllWithIncludesAsync()
     {
-        var entities = await _repository.GetAllWithIncludesAsync();
-        var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
-        return dtos;
+        try
+        {
+            var entities = await _repository.GetAllWithIncludesAsync();
+            var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
+            return dtos;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual TDto? GetById(TId id)
     {
-        var entity = _repository.GetById(id);
-        var dto = _mapper.Map<TDto>(entity);
-        return dto;
+        try
+        {
+            var entity = _repository.GetById(id);
+            var dto = _mapper.Map<TDto>(entity);
+            return dto;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual async Task<TDto?> GetByIdAsync(TId id)
     {
-        var entity = await _repository.GetByIdAsync(id);
-        var dto = _mapper.Map<TDto>(entity);
-        return dto;
+        try
+        {
+            var entity = await _repository.GetByIdAsync(id);
+            var dto = _mapper.Map<TDto>(entity);
+            return dto;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual async Task<TDto?> GetByIdAsync(TId id, Expression<Func<TEntity, object>>[] includes)
     {
-        var entity = await _repository.GetByIdAsync(id, includes);
-        var dto = _mapper.Map<TDto>(entity);
-        return dto;
+        try
+        {
+            var entity = await _repository.GetByIdAsync(id, includes);
+            var dto = _mapper.Map<TDto>(entity);
+            return dto;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual async Task<TDto?> GetByIdWithIncludesAsync(TId id)
     {
-        var entity = await _repository.GetByIdWithIncludesAsync(id);
-        var dto = _mapper.Map<TDto>(entity);
-        return dto;
+        try
+        {
+            var entity = await _repository.GetByIdWithIncludesAsync(id);
+            var dto = _mapper.Map<TDto>(entity);
+            return dto;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual async Task<TDto?> GetEntityByExpression(Expression<Func<TEntity, bool>> toCheck)
     {
-        var entity = await _repository.GetEntityByExpression(toCheck);
-        var dto = _mapper.Map<TDto>(entity);
-        return dto;
+        try
+        {
+            var entity = await _repository.GetEntityByExpression(toCheck);
+            var dto = _mapper.Map<TDto>(entity);
+            return dto;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual IEnumerable<TDto?> GetManyByIds(IEnumerable<TId> ids)
     {
-        var entities = _repository.GetManyByIds(ids);
-        var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
-        return dtos;
+        try
+        {
+            var entities = _repository.GetManyByIds(ids);
+            var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
+            return dtos;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual async Task<IEnumerable<TDto?>> GetManyByIdsAsync(IEnumerable<TId> ids)
     {
-        var entities = await _repository.GetManyByIdsAsync(ids);
-        var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
-        return dtos;
+        try
+        {
+            var entities = await _repository.GetManyByIdsAsync(ids);
+            var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
+            return dtos;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual bool IdExists(TId id)
     {
-        var exists = _repository.IdExists(id);
-        return exists;
+        try
+        {
+            var exists = _repository.IdExists(id);
+            return exists;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual async Task<bool> IdExistsAsync(TId id)
     {
-        var exists = await _repository.IdExistsAsync(id);
-        return exists;
+        try
+        {
+            var exists = await _repository.IdExistsAsync(id);
+            return exists;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual IEnumerable<TDto> Paging(int pageSize, int pageNumber, Expression<Func<TEntity, object>>[]? includes = null, Expression<Func<TEntity, bool>>[]? conditions = null, Func<TEntity, object>? orderBy = null, OrderByDirectionEnum? orderDirection = null)
     {
-        var entities = _repository.Paging(pageSize, pageNumber, includes, conditions, orderBy, orderDirection);
-        var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
-        return dtos;
+        try
+        {
+            var entities = _repository.Paging(pageSize, pageNumber, includes, conditions, orderBy, orderDirection);
+            var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
+            return dtos;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual IEnumerable<TDto> PagingWithIncludes(int pageSize, int pageNumber, Expression<Func<TEntity, object>>[]? includes = null, Expression<Func<TEntity, bool>>[]? conditions = null, Func<TEntity, object>? orderBy = null, OrderByDirectionEnum? orderDirection = null)
     {
-        var entities = _repository.PagingWithIncludes(pageSize, pageNumber, includes, conditions, orderBy, orderDirection);
-        var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
-        return dtos;
+        try
+        {
+            var entities = _repository.PagingWithIncludes(pageSize, pageNumber, includes, conditions, orderBy, orderDirection);
+            var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
+            return dtos;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual async Task<bool> SomethingExists(Expression<Func<TEntity, bool>> toCheck)
     {
-        var somethingExists = await _repository.SomethingExists(toCheck);
-        return somethingExists;
+        try
+        {
+            var somethingExists = await _repository.SomethingExists(toCheck);
+            return somethingExists;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
+    }
+
+    public Exception BuildExceptionToThrow(Exception ex, string? customUserMessage = null)
+    {
+        var entityName = typeof(TEntity).Name.Replace("Entity", "(s)");
+
+        if(ex is AutoMapperMappingException)
+        {
+            var entity = typeof(TEntity).Name ?? "entities";
+            _logger.LogError(ex, $"Failed to map between {nameof(TEntity)} and {nameof(TDto)}.");
+            return new UserFriendlyException($"Failed to get all {entity}s.", ex);
+        }
+        if (ex is DbOperationFailedException operationFailedException)
+        {
+            var defaultMessage = $"Failed to get all {entityName}s.";
+            var message = customUserMessage ?? defaultMessage;
+            _logger.LogError(ex, operationFailedException.Message );
+            return new UserFriendlyException(message, ex);
+        }
+        else
+        {
+            var entity = typeof(TEntity).Name ?? "entities";
+            var defaultMessage = $"An unknown error has occured during operation with {entityName}.";
+            var message = customUserMessage ?? defaultMessage;
+            _logger.LogError(ex, message);
+            return new UserFriendlyException(message, ex);
+        }
     }
 }
 
@@ -172,36 +351,64 @@ public class GenericService<TId, TEntity, TDto, TUpdateDto> : GenericService<TId
 {
     protected new readonly IUpdateRepository<TId, TEntity> _repository;
 
-    public GenericService(IUpdateRepository<TId, TEntity> repository, IMapper mapper)
-        : base(repository, mapper)
+    public GenericService(IUpdateRepository<TId, TEntity> repository, IMapper mapper, ILogger<GenericService<TId, TEntity, TDto, TUpdateDto>> logger)
+        : base(repository, mapper, logger)
     {
         _repository = repository;
     }
 
     public virtual bool Save()
     {
+        try
+        {
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
         var saved = _repository.Save();
         return saved;
     }
 
     public virtual async Task<bool> SaveAsync()
     {
-        var saved = await _repository.SaveAsync();
-        return saved;
+        try
+        {
+            var saved = await _repository.SaveAsync();
+            return saved;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual bool Update(TUpdateDto obj)
     {
-        var entity = _mapper.Map<TEntity>(obj);
-        var updated = _repository.Update(entity);
-        return updated;
+        try
+        {
+            var entity = _mapper.Map<TEntity>(obj);
+            var updated = _repository.Update(entity);
+            return updated;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual bool UpdateMany(IEnumerable<TUpdateDto> objs)
     {
-        var entities = _mapper.Map<IEnumerable<TEntity>>(objs);
-        var updated = _repository.UpdateMany(entities);
-        return updated;
+        try
+        {
+            var entities = _mapper.Map<IEnumerable<TEntity>>(objs);
+            var updated = _repository.UpdateMany(entities);
+            return updated;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 }
 
@@ -212,45 +419,80 @@ public class GenericService<TId, TEntity, TDto, TUpdateDto, TCreateDto> : Generi
 {
     protected new readonly ICreateRepository<TId, TEntity> _repository;
 
-    public GenericService(ICreateRepository<TId, TEntity> repository, IMapper mapper)
-        : base(repository, mapper)
+    public GenericService(ICreateRepository<TId, TEntity> repository, IMapper mapper, ILogger<GenericService<TId, TEntity, TDto, TUpdateDto, TCreateDto>> logger)
+        : base(repository, mapper, logger)
     {
         _repository = repository;
     }
 
     public virtual TDto Insert(TCreateDto obj)
     {
-        var entity = _mapper.Map<TEntity>(obj);
-        var result = _repository.Insert(entity);
-        return _mapper.Map<TDto>(result);
+        try
+        {
+            var entity = _mapper.Map<TEntity>(obj);
+            var result = _repository.Insert(entity);
+            return _mapper.Map<TDto>(result);
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual async Task<TDto> InsertAsync(TCreateDto obj)
     {
-        var entity = _mapper.Map<TEntity>(obj);
-        var result = await _repository.InsertAsync(entity);
-        return _mapper.Map<TDto>(result);
+        try
+        {
+            var entity = _mapper.Map<TEntity>(obj);
+            var result = await _repository.InsertAsync(entity);
+            return _mapper.Map<TDto>(result);
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual IEnumerable<TDto> InsertMany(IEnumerable<TCreateDto> objs)
     {
-        var entities = _mapper.Map<IEnumerable<TEntity>>(objs);
-        var results = _repository.InsertMany(entities);
-        return _mapper.Map<IEnumerable<TDto>>(results);
+        try
+        {
+            var entities = _mapper.Map<IEnumerable<TEntity>>(objs);
+            var results = _repository.InsertMany(entities);
+            return _mapper.Map<IEnumerable<TDto>>(results);
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual async Task<IEnumerable<TDto>> InsertManyAsync(IEnumerable<TCreateDto> objs)
     {
-        var entities = _mapper.Map<IEnumerable<TEntity>>(objs);
-        var results = await _repository.InsertManyAsync(entities);
-        return _mapper.Map<IEnumerable<TDto>>(results);
+        try
+        {
+            var entities = _mapper.Map<IEnumerable<TEntity>>(objs);
+            var results = await _repository.InsertManyAsync(entities);
+            return _mapper.Map<IEnumerable<TDto>>(results);
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual bool InsertOrUpdateMany(IEnumerable<TCreateDto> objs)
     {
-        var entities = _mapper.Map<IEnumerable<TEntity>>(objs);
-        var isSuccessful = _repository.InsertOrUpdateMany(entities);
-        return isSuccessful;
+        try
+        {
+            var entities = _mapper.Map<IEnumerable<TEntity>>(objs);
+            var isSuccessful = _repository.InsertOrUpdateMany(entities);
+            return isSuccessful;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 }
 
@@ -262,35 +504,63 @@ public class GenericService<TId, TEntity, TDto, TUpdateDto, TCreateDto, TDeleteD
 {
     protected new readonly IDeleteRepository<TId, TEntity> _repository;
 
-    public GenericService(IDeleteRepository<TId, TEntity> repository, IMapper mapper)
-        : base(repository, mapper)
+    public GenericService(IDeleteRepository<TId, TEntity> repository, IMapper mapper, ILogger<GenericService<TId, TEntity, TDto, TUpdateDto, TCreateDto, TDeleteDto>> logger)
+        : base(repository, mapper, logger)
     {
         _repository = repository;
     }
 
     public virtual bool Delete(TDeleteDto obj)
     {
-        var entity = _mapper.Map<TEntity>(obj);
-        var deleted = _repository.Delete(entity);
-        return deleted;
+        try
+        {
+            var entity = _mapper.Map<TEntity>(obj);
+            var deleted = _repository.Delete(entity);
+            return deleted;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual bool DeleteMany(IEnumerable<TDeleteDto> objs)
     {
-        var entities = _mapper.Map<IEnumerable<TEntity>>(objs);
-        var deleted = _repository.DeleteMany(entities);
-        return deleted;
+        try
+        {
+            var entities = _mapper.Map<IEnumerable<TEntity>>(objs);
+            var deleted = _repository.DeleteMany(entities);
+            return deleted;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual async Task<bool> DeleteByIdAsync(TId id)
     {
-        var deleted = await _repository.DeleteByIdAsync(id);
-        return deleted;
+        try
+        {
+            var deleted = await _repository.DeleteByIdAsync(id);
+            return deleted;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 
     public virtual Task<bool> DeleteAsync(TDeleteDto obj)
     {
-        var deleted = _repository.DeleteByIdAsync(obj.Id);
-        return deleted;
+        try
+        {
+            var deleted = _repository.DeleteByIdAsync(obj.Id);
+            return deleted;
+        }
+        catch (Exception ex)
+        {
+            throw BuildExceptionToThrow(ex);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Bdt.Api.Application.Services.Interfaces;
+using Bdt.Api.Infrastructure.Exceptions.Api;
 using Bdt.Shared.Dtos.BdtProduct;
 using Bdt.Shared.Models.App;
 using Microsoft.AspNetCore.Authorization;
@@ -28,9 +29,9 @@ public class BdtProductController : ControllerBase
 
             return Ok(ApiWrapper<IEnumerable<BdtProductDto>>.Success(dtos));
         }
-        catch (Exception ex) when (ex is AutoMapperConfigurationException || ex is AutoMapperMappingException)
+        catch (UserFriendlyException ex)
         {
-            var error = ApiWrapper<IEnumerable<BdtProductDto>>.Failed($"Automapper exception occurred: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<BdtProductDto>>.Failed(ex.Message);
 
             return BadRequest(error);
         }

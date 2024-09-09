@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Bdt.Api.Application.Services.Interfaces;
-using Bdt.Api.Controllers;
 using Bdt.Api.Domain.Entities;
+using Bdt.Api.Infrastructure.Exceptions.Api;
 using Bdt.Shared.Dtos.Planner;
 using Bdt.Shared.Models.App;
 using Microsoft.AspNetCore.Authorization;
@@ -41,9 +41,9 @@ public class PlannerController : BaseController<Guid, PlannerEntity, PlannerDto,
 
             return Ok(ApiWrapper<IEnumerable<PlannerDto>>.Success(userPlansDto));
         }
-        catch (Exception ex) when (ex is AutoMapperConfigurationException || ex is AutoMapperMappingException)
+        catch (UserFriendlyException ex)
         {
-            var error = ApiWrapper<IEnumerable<PlannerDto>>.Failed($"Automapper exception occurred: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<PlannerDto>>.Failed(ex.Message);
 
             return BadRequest(error);
         }

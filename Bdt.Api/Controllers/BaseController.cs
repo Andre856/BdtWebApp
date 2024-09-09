@@ -2,6 +2,7 @@
 using Bdt.Api.Application.Services.Interfaces;
 using Bdt.Api.Domain.Entities;
 using Bdt.Api.Domain.Helpers;
+using Bdt.Api.Infrastructure.Exceptions.Api;
 using Bdt.Shared.Dtos;
 using Bdt.Shared.Models.App;
 using Microsoft.AspNetCore.Authorization;
@@ -34,19 +35,18 @@ public class BaseController<TId, TEntity, TDto> : ControllerBase
         try
         {
             var entities = await _service.GetAllWithIncludesAsync();
-            var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
 
-            return Ok(ApiWrapper<IEnumerable<TDto>>.Success(dtos));
+            return Ok(ApiWrapper<IEnumerable<TDto>>.Success(entities));
         }
-        catch (Exception ex) when (ex is AutoMapperConfigurationException || ex is AutoMapperMappingException)
+        catch (UserFriendlyException ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"Automapper exception occurred: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed(ex.Message);
 
             return BadRequest(error);
         }
         catch (Exception ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"An error occurred when trying to retrieve from database: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"An unknown error occurred when trying to retrieve from database: {ex.Message}");
 
             return BadRequest(error);
         }
@@ -80,15 +80,15 @@ public class BaseController<TId, TEntity, TDto> : ControllerBase
 
             return Ok(ApiWrapper<IEnumerable<TDto>, PaginationMetadata>.Success(dtos, metadata));
         }
-        catch (Exception ex) when (ex is AutoMapperConfigurationException || ex is AutoMapperMappingException)
+        catch (UserFriendlyException ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>, PaginationMetadata>.Failed($"Automapper exception occurred: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed(ex.Message);
 
             return BadRequest(error);
         }
         catch (Exception ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>, PaginationMetadata>.Failed($"An error occurred when trying to retrieve from database: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>, PaginationMetadata>.Failed($"An unknown error occurred when trying to retrieve from database: {ex.Message}");
 
             return BadRequest(error);
         }
@@ -147,15 +147,15 @@ public class BaseController<TId, TEntity, TDto> : ControllerBase
 
             return Ok(response);
         }
-        catch (Exception ex) when (ex is AutoMapperConfigurationException || ex is AutoMapperMappingException)
+        catch (UserFriendlyException ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"Automapper exception occurred: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed(ex.Message);
 
             return BadRequest(error);
         }
         catch (Exception ex)
         {
-            var error = ApiWrapper<IEnumerable<TId>>.Failed($"An error occurred when trying to fetch data from database: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TId>>.Failed($"An unknown error occurred when trying to fetch data from database: {ex.Message}");
 
             return BadRequest(error);
         }
@@ -171,15 +171,15 @@ public class BaseController<TId, TEntity, TDto> : ControllerBase
 
             return Ok(ApiWrapper<IEnumerable<TDto>>.Success(dtos));
         }
-        catch (Exception ex) when (ex is AutoMapperConfigurationException || ex is AutoMapperMappingException)
+        catch (UserFriendlyException ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"Automapper exception occurred: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed(ex.Message);
 
             return BadRequest(error);
         }
         catch (Exception ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"An error occurred when trying to retrieve from database: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"An unknown error occurred when trying to retrieve from database: {ex.Message}");
 
             return BadRequest(error);
         }
@@ -213,15 +213,15 @@ public class BaseController<TId, TEntity, TDto> : ControllerBase
 
             return Ok(ApiWrapper<IEnumerable<TDto>, PaginationMetadata>.Success(dtos, metadata));
         }
-        catch (Exception ex) when (ex is AutoMapperConfigurationException || ex is AutoMapperMappingException)
+        catch (UserFriendlyException ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"Automapper exception occurred: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed(ex.Message);
 
             return BadRequest(error);
         }
         catch (Exception ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"An error occurred when trying to retrieve from database: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"An unknown error occurred when trying to retrieve from database: {ex.Message}");
 
             return BadRequest(error);
         }
@@ -252,15 +252,15 @@ public class BaseController<TId, TEntity, TDto> : ControllerBase
 
             return Ok(ApiWrapper<TDto>.Success(dto));
         }
-        catch (Exception ex) when (ex is AutoMapperConfigurationException || ex is AutoMapperMappingException)
+        catch (UserFriendlyException ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"Automapper exception occurred: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed(ex.Message);
 
             return BadRequest(error);
         }
         catch (Exception ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"An error occurred when trying to retrieve from database: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"An unknown error occurred when trying to retrieve from database: {ex.Message}");
 
             return BadRequest(error);
         }
@@ -291,15 +291,15 @@ public class BaseController<TId, TEntity, TDto> : ControllerBase
 
             return Ok(ApiWrapper<TDto>.Success(dto));
         }
-        catch (Exception ex) when (ex is AutoMapperConfigurationException || ex is AutoMapperMappingException)
+        catch (UserFriendlyException ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"Automapper exception occurred: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed(ex.Message);
 
             return BadRequest(error);
         }
         catch (Exception ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"An error occurred when trying to retrieve from database: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"An unknown error occurred when trying to retrieve from database: {ex.Message}");
 
             return BadRequest(error);
         }
@@ -314,9 +314,15 @@ public class BaseController<TId, TEntity, TDto> : ControllerBase
 
             return ApiWrapper<int>.Success(count);
         }
+        catch (UserFriendlyException ex)
+        {
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed(ex.Message);
+
+            return BadRequest(error);
+        }
         catch (Exception ex)
         {
-            var error = ApiWrapper<IEnumerable<int>>.Failed($"An error occurred when trying to count: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<int>>.Failed($"An unknown error occurred when trying to count: {ex.Message}");
 
             return BadRequest(error);
         }
@@ -357,15 +363,15 @@ public class BaseController<TId, TEntity, TDto, TUpdateDto>
 
             return Ok(ApiWrapper<bool>.Success(true));
         }
-        catch (Exception ex) when (ex is AutoMapperConfigurationException || ex is AutoMapperMappingException)
+        catch (UserFriendlyException ex)
         {
-            var error = ApiWrapper<TDto>.Failed($"Automapper exception occurred: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed(ex.Message);
 
             return BadRequest(error);
         }
         catch (Exception ex)
         {
-            var error = ApiWrapper<TDto>.Failed($"An error occurred when trying to update: {ex.Message}");
+            var error = ApiWrapper<TDto>.Failed($"An unknown error occurred when trying to update: {ex.Message}");
 
             return BadRequest(error);
         }
@@ -381,15 +387,15 @@ public class BaseController<TId, TEntity, TDto, TUpdateDto>
 
             return Ok(ApiWrapper<bool>.Success(saved));
         }
-        catch (Exception ex) when (ex is AutoMapperConfigurationException || ex is AutoMapperMappingException)
+        catch (UserFriendlyException ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"Automapper exception occurred: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed(ex.Message);
 
             return BadRequest(error);
         }
         catch (Exception ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"An error occurred when trying to update: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"An unknown error occurred when trying to update: {ex.Message}");
 
             return BadRequest(error);
         }
@@ -428,15 +434,15 @@ public class BaseController<TId, TEntity, TDto, TUpdateDto, TCreateDto>
 
             return Ok(ApiWrapper<TDto>.Success(responseDto));
         }
-        catch (Exception ex) when (ex is AutoMapperConfigurationException || ex is AutoMapperMappingException)
+        catch (UserFriendlyException ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"Automapper exception occurred: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed(ex.Message);
 
             return BadRequest(error);
         }
         catch (Exception ex)
         {
-            var error = ApiWrapper<TDto>.Failed($"An error occurred during the create request: {ex.Message}");
+            var error = ApiWrapper<TDto>.Failed($"An unknown error occurred during the create request: {ex.Message}");
 
             return BadRequest(error);
         }
@@ -462,15 +468,15 @@ public class BaseController<TId, TEntity, TDto, TUpdateDto, TCreateDto>
 
             return Ok(ApiWrapper<IEnumerable<TDto>>.Success(responseDto));
         }
-        catch (Exception ex) when (ex is AutoMapperConfigurationException || ex is AutoMapperMappingException)
+        catch (UserFriendlyException ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"Automapper exception occurred: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed(ex.Message);
 
             return BadRequest(error);
         }
         catch (Exception ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"An error occurred during the create request: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"An unknown error occurred during the create request: {ex.Message}");
 
             return BadRequest(error);
         }
@@ -520,15 +526,15 @@ public class BaseController<TId, TEntity, TDto, TUpdateDto, TCreateDto, TDeleteD
 
             return Ok(ApiWrapper<TDto>.Success(dto));
         }
-        catch (Exception ex) when (ex is AutoMapperConfigurationException || ex is AutoMapperMappingException)
+        catch (UserFriendlyException ex)
         {
-            var error = ApiWrapper<TDto>.Failed($"Automapper exception occurred: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed(ex.Message);
 
             return BadRequest(error);
         }
         catch (Exception ex)
         {
-            var error = ApiWrapper<TDto>.Failed($"An error occurred during the delete request: {ex.Message}");
+            var error = ApiWrapper<TDto>.Failed($"An unknown error occurred during the delete request: {ex.Message}");
 
             return BadRequest(error);
         }
@@ -553,15 +559,15 @@ public class BaseController<TId, TEntity, TDto, TUpdateDto, TCreateDto, TDeleteD
 
             return Ok(ApiWrapper<IEnumerable<TDto>>.Success(dtos));
         }
-        catch (Exception ex) when (ex is AutoMapperConfigurationException || ex is AutoMapperMappingException)
+        catch (UserFriendlyException ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"Automapper exception occurred: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed(ex.Message);
 
             return BadRequest(error);
         }
         catch (Exception ex)
         {
-            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"An error occurred during the delete request: {ex.Message}");
+            var error = ApiWrapper<IEnumerable<TDto>>.Failed($"An unknown error occurred during the delete request: {ex.Message}");
 
             return BadRequest(error);
         }

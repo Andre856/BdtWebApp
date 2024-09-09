@@ -126,14 +126,11 @@ public class CheckoutController : ControllerBase
     }
 
     [HttpGet("success")]
-    // Automatic query parameter handling from ASP.NET.
-    // Example URL: https://localhost:7051/checkout/success?sessionId=si_123123123123
     public ActionResult CheckoutSuccess(string sessionId)
     {
         var sessionService = new SessionService();
         var session = sessionService.Get(sessionId);
 
-        // Here you can save order and customer details to your database.
         var total = session.AmountTotal.Value;
         var customerEmail = session.CustomerDetails.Email;
 

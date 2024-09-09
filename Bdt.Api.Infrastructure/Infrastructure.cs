@@ -13,50 +13,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Bdt.Api.Infrastructure.Interceptors;
 
 namespace Bdt.Api.Infrastructure;
 
 public static class Infrastructure
 {
-    public static void SetEnvironmentVariables(this IConfiguration config)
-    {
-        SetDatabaseStrings(config.GetSection("ProdDbConnectionString").Value,
-            config.GetSection("DevDbConnectionString").Value,
-            config.GetSection("TestDbConnectionString").Value);
-    }
-
-    private static void SetDatabaseStrings(string? prodConnectionString, string? devConnectionString, string? testConnectionString)
-    {
-        string? connectionString = null;
-        string? environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-
-        switch (environment)
-        {
-            case null:
-                connectionString = prodConnectionString;
-                break;
-            case "Development":
-                connectionString = devConnectionString;
-                break;
-            case "Testing":
-                connectionString = testConnectionString;
-                break;
-            case "Staging":
-                connectionString = prodConnectionString;
-                break;
-        }
-
-        if (connectionString is null)
-            throw new Exception("Could not find connection string.");
-
-        Environment.SetEnvironmentVariable("CONNECTION_STRING", connectionString);
-    }
-
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfigurationManager config)
     {
         services.AddMemoryCache();
         services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
+        services.AddScoped<AuditInterceptor>();
         services.AddScoped<StripeManager>();
 
         services.AddScoped(typeof(IReadRepository<,>), typeof(ReadRepository<,>));
@@ -133,7 +101,11 @@ public static class Infrastructure
         var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
         ?? throw new Exception("Could not find prod db connection string.");
 
-        services.AddDbContext<BdtDbContext>(options => options.UseSqlServer(connectionString));
+        services.AddDbContext<BdtDbContext>((serviceProvider, options) =>
+        {
+            options.UseSqlServer(connectionString);
+            options.AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>());
+        });
 
         services.AddCors(options =>
         {
@@ -147,5 +119,39 @@ public static class Infrastructure
         });
 
         return services;
+    }
+
+    public static void SetEnvironmentVariables(this IConfiguration config)
+    {
+        SetDatabaseStrings(config.GetSection("ProdDbConnectionString").Value,
+            config.GetSection("DevDbConnectionString").Value,
+            config.GetSection("TestDbConnectionString").Value);
+    }
+
+    private static void SetDatabaseStrings(string? prodConnectionString, string? devConnectionString, string? testConnectionString)
+    {
+        string? connectionString = null;
+        string? environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+        switch (environment)
+        {
+            case null:
+                connectionString = prodConnectionString;
+                break;
+            case "Development":
+                connectionString = devConnectionString;
+                break;
+            case "Testing":
+                connectionString = testConnectionString;
+                break;
+            case "Staging":
+                connectionString = prodConnectionString;
+                break;
+        }
+
+        if (connectionString is null)
+            throw new Exception("Could not find connection string.");
+
+        Environment.SetEnvironmentVariable("CONNECTION_STRING", connectionString);
     }
 }

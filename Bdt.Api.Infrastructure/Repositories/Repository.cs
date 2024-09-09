@@ -437,56 +437,24 @@ public class DeleteRepository<TId, TEntity> : CreateRepository<TId, TEntity>, ID
 
     public bool Delete(TEntity entity)
     {
-        if (entity is not IEntitySoftDelete)
-        {
-            Table.Remove(entity);
-            return Save();
-        }
-
-        if (entity is IEntitySoftDelete softDeleteEntity)
-        {
-            softDeleteEntity.IsDeleted = true;
-        }
-
-        var updated = Update(entity);
-        return updated;
+        Table.Remove(entity);
+        return Save();
     }
 
     public bool DeleteMany(IEnumerable<TEntity> entities)
     {
-        if (entities is IEnumerable<IEntitySoftDelete> softDeleteEntities)
-        {
-            foreach (var softDeleteEntity in softDeleteEntities)
-            {
-                softDeleteEntity.IsDeleted = true;
-            }
-            var updated = UpdateMany(entities);
-            return updated;
-        }
-
         Table.RemoveRange(entities);
         return Save();
     }
 
     public async Task<bool> DeleteAsync(TEntity entity)
     {
-        if (entity is not IEntitySoftDelete)
+        await Task.Run(() =>
         {
-            await Task.Run(() =>
-            {
-                Table.Remove(entity);
-            });
+            Table.Remove(entity);
+        });
 
-            return await SaveAsync();
-        }
-
-        if (entity is IEntitySoftDelete softDeleteEntity)
-        {
-            softDeleteEntity.IsDeleted = true;
-        }
-
-        var updated = Update(entity);
-        return updated;
+        return await SaveAsync();
     }
 
     public async Task<bool> DeleteByIdAsync(TId id)
@@ -494,40 +462,14 @@ public class DeleteRepository<TId, TEntity> : CreateRepository<TId, TEntity>, ID
         TEntity existing = await Table.FindAsync(id) ??
             throw new Exception($"ID {id} not found");
 
-        if (existing is not IEntitySoftDelete)
-        {
-            Table.Remove(existing);
+        Table.Remove(existing);
 
-            return await SaveAsync();
-        }
-
-        if (existing is IEntitySoftDelete softDeleteEntity)
-        {
-            softDeleteEntity.IsDeleted = true;
-
-        }
-
-        var updated = Update(existing);
-        return updated;
+        return await SaveAsync();
     }
 
     public async Task<bool> DeleteManyAsync(IEnumerable<TEntity> entities)
     {
-        if (entities is not IEnumerable<IEntitySoftDelete>)
-        {
-            await Task.Run(() => { Table.RemoveRange(entities); });
-            return await SaveAsync();
-        }
-
-        if (entities is IEnumerable<IEntitySoftDelete> softDeleteEntities)
-        {
-            foreach (var softDeleteEntity in softDeleteEntities)
-            {
-                softDeleteEntity.IsDeleted = true;
-            }
-        }
-
-        var updated = UpdateMany(entities);
-        return updated;
+        await Task.Run(() => { Table.RemoveRange(entities); });
+        return await SaveAsync();
     }
 }
